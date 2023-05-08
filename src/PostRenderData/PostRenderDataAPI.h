@@ -1,0 +1,12 @@
+﻿#ifndef _POSTRENDERDATA_API_
+#define _POSTRENDERDATA_API_
+
+#include <QtCore/QtGlobal>
+
+#if defined(POSTRENDERDATA_API)
+#define POSTRENDERDATAAPI Q_DECL_EXPORT
+#else
+#define POSTRENDERDATAAPI Q_DECL_IMPORT
+#endif
+
+#endif

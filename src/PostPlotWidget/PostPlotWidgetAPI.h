@@ -1,0 +1,13 @@
+﻿#ifndef POSTPLOTWIDGETAPI_H
+#define POSTPLOTWIDGETAPI_H
+
+#include <QtCore/QtGlobal>
+
+
+#if defined(POSTPLOTWIDGET_API)
+#define POSTPLOTWIDGETAPI Q_DECL_EXPORT
+#else
+#define POSTPLOTWIDGETAPI Q_DECL_IMPORT
+#endif
+
+#endif // POSTPLOTWIDGETAPI_H
