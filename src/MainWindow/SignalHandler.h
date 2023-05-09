@@ -1,26 +1,24 @@
 ﻿#ifndef _SIGNALHANDLER_H_
 #define _SIGNALHANDLER_H_
 
+#include "MainWindowAPI.h"
+
 #include <QObject>
 #include <QStringList>
-#include "mainWindowAPI.h"
 
 class QDialog;
 class QTreeWidgetItem;
 class vtkDataSet;
 
-namespace Post
-{
+namespace Post {
 	class PostWindowBase;
 }
 
-namespace GUI
-{
+namespace GUI {
 	class MainWindow;
 	class SolveProcessManager;
 
-	class MAINWINDOWAPI SignalHandler : public QObject
-	{
+	class MAINWINDOWAPI SignalHandler : public QObject {
 		Q_OBJECT
 	public:
 		SignalHandler(MainWindow* mainwindow);
@@ -35,25 +33,23 @@ namespace GUI
 		void saveToProjectFileSig(QString fileName);
 		void solveProjectSig(int projectIndex, int solverIndex);
 		void projectFileProcessedSig(QString file, bool success, bool isread);
-		
 
 	public:
-		//不要通过返回值判断
-		bool importGeometry(const QStringList &filenames);
-		bool exportGeometry(QString f);
-		QString getMD5();
+		// 不要通过返回值判断
+		bool				 importGeometry(const QStringList& filenames);
+		bool				 exportGeometry(QString f);
+		QString				 getMD5();
 		/*创建工程 */
-		void on_actionNew();
-		///获取求解管理器
+		void				 on_actionNew();
+		/// 获取求解管理器
 		SolveProcessManager* getSolveProcessManager();
-		
-	
+
 	public slots:
-		//导入网格
-		bool importMeshSlot(const QString &fileName, const QString& suffix, int modelId);
-		//导出网格
-		bool exportMeshSlot(const QString &fileName, const QString& suffix, int modelId);
-		///清除数据
+		// 导入网格
+		bool importMeshSlot(const QString& fileName, const QString& suffix, int modelId);
+		// 导出网格
+		bool exportMeshSlot(const QString& fileName, const QString& suffix, int modelId);
+		/// 清除数据
 		void clearData(bool unlock = true);
 		/*求解 */
 		void on_actionSolve();
@@ -61,54 +57,54 @@ namespace GUI
 		void on_actionEnglish();
 		/*切换为中文 */
 		void on_actionChinese();
-		//切换到Ribbon风格
+		// 切换到Ribbon风格
 		void on_actionRibbon();
-		//切换到正常风格
+		// 切换到正常风格
 		void on_actionNormal();
 		/*处理模型树事件 */
-		void handleTreeMouseEvent(int eventtype, QTreeWidgetItem*item, int proID);
-		///求解
+		void handleTreeMouseEvent(int eventtype, QTreeWidgetItem* item, int proID);
+		/// 求解
 		void solveProjectPy(int projectIndex, int solverIndex);
 		void solveProject(int projectIndex, int solverIndex);
-		///生成面网格
+		/// 生成面网格
 		void generateSurfaceMesh();
-		///生成体网格
+		/// 生成体网格
 		void generateSolidMesh();
-		//生成流体域网格
+		// 生成流体域网格
 		void generateFluidMesh();
-		///生成网格
+		/// 生成网格
 		void genMesh();
-		//添加求解器生成网格
+		// 添加求解器生成网格
 		void appendGeneratedMesh(QString name, vtkDataSet* dataset);
-		///刷新Action状态
+		/// 刷新Action状态
 		void updateActionsStates();
 		void updatePostActionStates();
-		//独立打开2D后处理窗口
+		// 独立打开2D后处理窗口
 		void open2DPlotWindow();
-		void open2DPlotWindowPy();//提交py代码
-		//独立打开3D后处理窗口
+		void open2DPlotWindowPy(); // 提交py代码
+		// 独立打开3D后处理窗口
 		void open3DGraphWindow();
 		void open3DGraphWindowPy();
-		//关闭后处理窗口
+		// 关闭后处理窗口
 		void closePostWindow(Post::PostWindowBase* p);
-		//保存图片
+		// 保存图片
 		void saveImange();
 		bool openProjectFile(QString fileName);
 		void projectFileProcessed(QString filename, bool success, bool read);
 		void saveToProjectFile(QString fileName);
-		//检查网格质量
+		// 检查网格质量
 		void meshChecking();
-		//显示用户引导
+		// 显示用户引导
 		void showUserGuidence(bool start = false);
-		//创建几何
+		// 创建几何
 		void undo();
 		void redo();
 		void createBox();
 		void createCylinder();
 		void CreateSphere();
 		void CreateCone();
-		//void CreateCylindricalComplex();
-		//void CreateBoxComplex();
+		// void CreateCylindricalComplex();
+		// void CreateBoxComplex();
 		void CreatePoint();
 		void CreateEdge();
 		void CreateFace();
@@ -144,8 +140,8 @@ namespace GUI
 		void setPostDisplayMode(int type);
 		void createPostVector();
 
-        //打开二维曲线文件
-        void openPlotFile();
+		// 打开二维曲线文件
+		void openPlotFile();
 		void createPostClip();
 		void createPostSlice();
 		void createPostStreamLine();
@@ -157,18 +153,18 @@ namespace GUI
 		void savePostAnimation();
 
 		void GeoMeshRotate();
+
 	private:
-		void handleSingleClickEvent(QTreeWidgetItem*item, int proID);
+		void handleSingleClickEvent(QTreeWidgetItem* item, int proID);
 		void openPreWinPy();
 
 	private:
-		MainWindow* _mainWindow{};
-		int _proID{ -1 };
+		MainWindow*			 _mainWindow{};
+		int					 _proID{ -1 };
 		SolveProcessManager* _solveProcessManager{};
-		bool _launched{ false };
-//		QString _currentFilePath{};
-
+		bool				 _launched{ false };
+		//		QString _currentFilePath{};
 	};
-}
+} // namespace GUI
 
 #endif

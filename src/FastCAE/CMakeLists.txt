@@ -36,9 +36,8 @@ if(_WIN_)
 	#list(APPEND _depend_library XGenerateReport License)
 endif()
 
-
 list(APPEND _runtimes_libraries
-	Qt5::Core Qt5::Gui Qt5::Widgets
+	Qt5::Core Qt5::Gui Qt5::Widgets FASTCAE::HDF5 FASTCAE::HDF5CPP
 )
 
 #-----------------------------------------------------------------------------

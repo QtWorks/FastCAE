@@ -20,83 +20,81 @@
  * DISCLAIMED.
  * ==================================================================================
  */
-#include <QMdiSubWindow>
-#include <QDebug>
-#include <QList>
-#include <QTreeWidgetItem>
-#include <QFileDialog>
-#include <QMessageBox>
-#include <QCloseEvent>
-#include <QSignalMapper>
-#include <QLabel>
 #include "MainWindow.h"
-#include "signalHandler.h"
-#include "translator.h"
-#include "SubWindowManager.h"
-#include "SARibbonMWUi.h"
-#include "Settings/BusAPI.h"
-#include "Settings/GraphOption.h"
-#include "ModuleBase/ModuleType.h"
-#include "ModuleBase/ModuleBase.h"
-#include "MainWidgets/ControlPanel.h"
-#include "MainWidgets/messageWindow.h"
-#include "MainWidgets/ProcessWindow.h"
-#include "MainWidgets/projectSolveDialog.h"
-#include "MainWidgets/DialogCreateSet.h"
-#include "MainWidgets/DialogCreateGeoComponent.h"
-#include "MainWidgets/DialogVTKTransform.h"
-#include "MainWidgets/preWindow.h"
-#include "GeometryWidgets/dialogSketchPlane.h"
-#include "MeshData/meshSingleton.h"
-#include "MeshData/meshKernal.h"
-#include "Geometry/geometryData.h"
-#include "DialogAbout.h"
-#include <QDesktopServices>
-#include <QMessageBox>
-#include <QApplication>
-#include "IO/IOConfig.h"
+
 #include "ConfigOptions/ConfigOptions.h"
-#include "ConfigOptions/GlobalConfig.h"
 #include "ConfigOptions/GeometryConfig.h"
+#include "ConfigOptions/GlobalConfig.h"
 #include "ConfigOptions/MeshConfig.h"
 #include "ConfigOptions/PostConfig.h"
 #include "ConfigOptions/ProjectTreeConfig.h"
+#include "CustomizerHelper.h"
+#include "DialogAbout.h"
+#include "Geometry/geometryData.h"
+#include "GeometryWidgets/dialogSketchPlane.h"
+#include "GmshModule/GmshModule.h"
+#include "IO/IOConfig.h"
+#include "MainWidgets/ControlPanel.h"
+#include "MainWidgets/DialogCreateGeoComponent.h"
+#include "MainWidgets/DialogCreateSet.h"
+#include "MainWidgets/DialogFilterMesh.h"
+#include "MainWidgets/DialogVTKTransform.h"
+#include "MainWidgets/messageWindow.h"
+#include "MainWidgets/preWindow.h"
+#include "MainWidgets/ProcessWindow.h"
+#include "MainWidgets/projectSolveDialog.h"
+#include "MainWindowPy.h"
+#include "MeshData/meshKernal.h"
+#include "MeshData/meshSingleton.h"
 #include "ModelData/modelDataBaseExtend.h"
 #include "ModelData/modelDataSingleton.h"
+#include "ModuleBase/ModuleBase.h"
+#include "ModuleBase/ModuleType.h"
+#include "ModuleBase/ThreadTaskManager.h"
 #include "PluginManager/PluginManager.h"
 #include "PythonModule/PyAgent.h"
-#include "MainWindowPy.h"
-#include "CustomizerHelper.h"
-#include "SolverControl/DialogSolverManager.h"
-#include "GmshModule/GmshModule.h"
-#include "ModuleBase/ThreadTaskManager.h"
-#include "MainWidgets/DialogFilterMesh.h"
 #include "SARibbonMWUi.h"
- // ribbon
+#include "Settings/BusAPI.h"
+#include "Settings/GraphOption.h"
+#include "SignalHandler.h"
+#include "SolverControl/DialogSolverManager.h"
+#include "SubWindowManager.h"
+#include "Translator.h"
+
+#include <QApplication>
+#include <QCloseEvent>
+#include <QDebug>
+#include <QDesktopServices>
+#include <QFileDialog>
+#include <QLabel>
+#include <QList>
+#include <QMdiSubWindow>
+#include <QMessageBox>
+#include <QSignalMapper>
+#include <QTreeWidgetItem>
+// ribbon
 #include "SARibbonBar/SARibbonBar.h"
 #include "SARibbonBar/SARibbonCategory.h"
-#include "SARibbonBar/SARibbonPannel.h"
 #include "SARibbonBar/SARibbonContextCategory.h"
+#include "SARibbonBar/SARibbonPannel.h"
 #include "SARibbonBar/SARibbonTabBar.h"
 // Post
+#include "Common/Types.h"
 #include "PostInterface/AnimationToolBar.h"
 #include "PostInterface/RenderDirector.h"
-#include "Common/Types.h"
-namespace GUI
-{
-	MainWindow::MainWindow(bool useRibbon) : SARibbonMainWindow(nullptr, useRibbon), _ui(new Ui::MainWindowRibbon)
+namespace GUI {
+	MainWindow::MainWindow(bool useRibbon)
+		: SARibbonMainWindow(nullptr, useRibbon)
+		, _ui(new Ui::MainWindowRibbon)
 	{
-		if (useRibbon)
-		{
+		if(useRibbon) {
 			_ui->setupRibbonUi(this);
 			// ribbon customize
 			// MainWindow的初始化，生成QAction
-			//生成ribbon布局
-			m_ribbonActionMgr = new SARibbonActionsManager(static_cast<SARibbonMainWindow *>(this));
+			// 生成ribbon布局
+			m_ribbonActionMgr = new SARibbonActionsManager(static_cast<SARibbonMainWindow*>(this));
 			m_ribbonActionMgr->setAllActionCanCustomize(true); // 设置所有管理的action可编辑
-		}
-		else
-		{
+		} else {
 			_ui->setupUi(this);
 		}
 
@@ -104,8 +102,8 @@ namespace GUI
 		QString lang = Setting::BusAPI::instance()->getLanguage();
 
 		registerMoudel();
-		_signalHandler = new SignalHandler(this);
-		_translator = new Translator();
+		_signalHandler	  = new SignalHandler(this);
+		_translator		  = new Translator();
 		_subWindowManager = new SubWindowManager(this, _ui->mdiArea, _signalHandler, _controlPanel);
 		setPostAnimationToolBar(useRibbon);
 		connectSignals();
@@ -117,11 +115,11 @@ namespace GUI
 
 		this->ChangeLanguage(lang);
 		QString workingdir = Setting::BusAPI::instance()->getWorkingDir();
-		if (workingdir.isEmpty())
+		if(workingdir.isEmpty())
 			setWorkingDir();
 
 		Setting::BusAPI::instance()->setMainWindow(this);
-		Setting::GraphOption *gp = Setting::BusAPI::instance()->getGraphOption();
+		Setting::GraphOption* gp = Setting::BusAPI::instance()->getGraphOption();
 		_ui->actionDisplayPoint->setChecked(gp->isShowGeoPoint());
 		_ui->actionDisplayCurve->setChecked(gp->isShowGeoEdge());
 		_ui->actionDisplayFace->setChecked(gp->isShowGeoSurface());
@@ -152,9 +150,9 @@ namespace GUI
 
 		// ribbon customize
 		// MainWindow的构造函数最后
-		if (useRibbon)
-		{
-			const QString strCostomizePath = QApplication::applicationDirPath() + "/customization.xml";
+		if(useRibbon) {
+			const QString strCostomizePath =
+				QApplication::applicationDirPath() + "/customization.xml";
 			sa_apply_customize_from_xml_file(strCostomizePath, this, m_ribbonActionMgr);
 		}
 	}
@@ -167,39 +165,38 @@ namespace GUI
 
 		ModuleBase::ThreadTaskManager::getInstance()->clearThreadTaskList();
 
-		if (_signalHandler != nullptr)
+		if(_signalHandler != nullptr)
 			delete _signalHandler;
-		if (_controlPanel != nullptr)
+		if(_controlPanel != nullptr)
 			delete _controlPanel;
-		if (_messageWindow != nullptr)
+		if(_messageWindow != nullptr)
 			delete _messageWindow;
-		if (_processWindow != nullptr)
+		if(_processWindow != nullptr)
 			delete _processWindow;
-		if (_ui != nullptr)
+		if(_ui != nullptr)
 			delete _ui;
 		_ui = nullptr;
 
-		if (_translator != nullptr)
+		if(_translator != nullptr)
 			delete _translator;
-		if (_viewSignalMapper != nullptr)
+		if(_viewSignalMapper != nullptr)
 			delete _viewSignalMapper;
-		if (_selectSignalMapper != nullptr)
+		if(_selectSignalMapper != nullptr)
 			delete _selectSignalMapper;
 		//		if (_displayModeSignalMapper != nullptr)   delete _displayModeSignalMapper;
-		if (_recentFileMapper != nullptr)
+		if(_recentFileMapper != nullptr)
 			delete _recentFileMapper;
-		if (_recentMenu != nullptr)
+		if(_recentMenu != nullptr)
 			delete _recentMenu;
-		if (_graphRange != nullptr)
+		if(_graphRange != nullptr)
 			delete _graphRange;
-		if (_customizerHelper != nullptr)
+		if(_customizerHelper != nullptr)
 			delete _customizerHelper;
-		if (_postToolBar != nullptr)
+		if(_postToolBar != nullptr)
 			delete _postToolBar;
 
 		// ribbon customize
-		if (m_ribbonActionMgr != nullptr)
-		{
+		if(m_ribbonActionMgr != nullptr) {
 			delete m_ribbonActionMgr;
 		}
 	}
@@ -208,9 +205,12 @@ namespace GUI
 	{
 		connect(this, SIGNAL(closeMainWindow()), this, SLOT(closeWindow()));
 		connect(this, SIGNAL(sendInfoToStatesBar(QString)), this, SLOT(setStatusBarInfo(QString)));
-		//		connect(this, SIGNAL(importMeshByNamesSig(QString)), this, SLOT(importMesh(QString)));
-		connect(this, SIGNAL(importMeshDataSetSig(vtkDataSet *)), this, SLOT(importMeshDataset(vtkDataSet *)));
-		connect(this, SIGNAL(printMessageSig(Common::Message, QString)), this, SLOT(printMessage(Common::Message, QString)));
+		//		connect(this, SIGNAL(importMeshByNamesSig(QString)), this,
+		//SLOT(importMesh(QString)));
+		connect(this, SIGNAL(importMeshDataSetSig(vtkDataSet*)), this,
+				SLOT(importMeshDataset(vtkDataSet*)));
+		connect(this, SIGNAL(printMessageSig(Common::Message, QString)), this,
+				SLOT(printMessage(Common::Message, QString)));
 
 		connect(_ui->actionNew, SIGNAL(triggered()), this, SLOT(on_actionNew()));
 		connect(_ui->actionOpen, SIGNAL(triggered()), this, SLOT(on_actionOpen()));
@@ -229,14 +229,16 @@ namespace GUI
 		connect(_ui->actionAbout, SIGNAL(triggered()), this, SLOT(on_about()));
 		connect(_ui->actionUser_Manual, SIGNAL(triggered()), this, SLOT(on_userManual()));
 		connect(_ui->actionCreate_Set, SIGNAL(triggered()), this, SLOT(on_CreateSet()));
-		connect(_ui->actionCreateGeoComponent, SIGNAL(triggered()), this, SLOT(on_CreateGeoComponent()));
+		connect(_ui->actionCreateGeoComponent, SIGNAL(triggered()), this,
+				SLOT(on_CreateGeoComponent()));
 		connect(_ui->actionSave_Script, SIGNAL(triggered()), this, SLOT(on_SaveScript()));
 		connect(_ui->actionExecute_Script, SIGNAL(triggered()), this, SLOT(on_ExecuateScript()));
-		connect(_ui->actionPluginManager, SIGNAL(triggered()), Plugins::PluginManager::getInstance(), SLOT(manage()));
+		connect(_ui->actionPluginManager, SIGNAL(triggered()),
+				Plugins::PluginManager::getInstance(), SLOT(manage()));
 		connect(_ui->actionFilterMesh, SIGNAL(triggered()), this, SLOT(on_FilterMesh()));
 		connect(_ui->actionVTKTranslation, SIGNAL(triggered()), this, SLOT(on_VTKTranslation()));
 
-		//设置视角
+		// 设置视角
 		_viewSignalMapper = new QSignalMapper(this);
 		connect(_ui->actionFitView, SIGNAL(triggered()), _viewSignalMapper, SLOT(map()));
 		connect(_ui->actionViewXPlus, SIGNAL(triggered()), _viewSignalMapper, SLOT(map()));
@@ -252,8 +254,9 @@ namespace GUI
 		_viewSignalMapper->setMapping(_ui->actionViewYMinus, QString("YMinus"));
 		_viewSignalMapper->setMapping(_ui->actionViewZPlus, QString("ZPlus"));
 		_viewSignalMapper->setMapping(_ui->actionViewZMinus, QString("ZMinus"));
-		connect(_viewSignalMapper, SIGNAL(mapped(QString)), _subWindowManager, SLOT(setView(QString)));
-		//设置mesh选择模式
+		connect(_viewSignalMapper, SIGNAL(mapped(QString)), _subWindowManager,
+				SLOT(setView(QString)));
+		// 设置mesh选择模式
 		_selectSignalMapper = new QSignalMapper(this);
 		connect(_ui->actionSelectOff, SIGNAL(triggered()), _selectSignalMapper, SLOT(map()));
 		// connect(_ui->actionSelectGeoBody, SIGNAL(triggered()), _selectSignalMapper, SLOT(map()));
@@ -262,46 +265,65 @@ namespace GUI
 		connect(_ui->actionBoxMeshNode, SIGNAL(triggered()), _selectSignalMapper, SLOT(map()));
 		connect(_ui->actionBoxMeshCell, SIGNAL(triggered()), _selectSignalMapper, SLOT(map()));
 		_selectSignalMapper->setMapping(_ui->actionSelectOff, (int)ModuleBase::SelectModel::None);
-		//_selectSignalMapper->setMapping(_ui->actionSelectGeoBody, (int)ModuleBase::SelectModel::GeometryBody);
-		_selectSignalMapper->setMapping(_ui->actionSelectMeshNode, (int)ModuleBase::SelectModel::MeshNode);
-		_selectSignalMapper->setMapping(_ui->actionSelectMeshCell, (int)ModuleBase::SelectModel::MeshCell);
-		_selectSignalMapper->setMapping(_ui->actionBoxMeshNode, (int)ModuleBase::SelectModel::BoxMeshNode);
-		_selectSignalMapper->setMapping(_ui->actionBoxMeshCell, (int)ModuleBase::SelectModel::BoxMeshCell);
+		//_selectSignalMapper->setMapping(_ui->actionSelectGeoBody,
+		//(int)ModuleBase::SelectModel::GeometryBody);
+		_selectSignalMapper->setMapping(_ui->actionSelectMeshNode,
+										(int)ModuleBase::SelectModel::MeshNode);
+		_selectSignalMapper->setMapping(_ui->actionSelectMeshCell,
+										(int)ModuleBase::SelectModel::MeshCell);
+		_selectSignalMapper->setMapping(_ui->actionBoxMeshNode,
+										(int)ModuleBase::SelectModel::BoxMeshNode);
+		_selectSignalMapper->setMapping(_ui->actionBoxMeshCell,
+										(int)ModuleBase::SelectModel::BoxMeshCell);
 		connect(_selectSignalMapper, SIGNAL(mapped(int)), this, SIGNAL(selectModelChangedSig(int)));
 		connect(_selectSignalMapper, SIGNAL(mapped(int)), this, SLOT(selectModelChanged(int)));
-		//网格显示模式
+		// 网格显示模式
 		//		_displayModeSignalMapper = new QSignalMapper(this);
 		connect(_ui->actionDisplayNode, SIGNAL(triggered()), this, SLOT(setMeshDisplay()));
 		connect(_ui->actionDisplayWireFrame, SIGNAL(triggered()), this, SLOT(setMeshDisplay()));
 		connect(_ui->actionDisplaySurface, SIGNAL(triggered()), this, SLOT(setMeshDisplay()));
-		//几何显示模式(点、线、面)
+		// 几何显示模式(点、线、面)
 		connect(_ui->actionDisplayPoint, SIGNAL(triggered()), this, SLOT(setGeometryDisplay()));
 		connect(_ui->actionDisplayCurve, SIGNAL(triggered()), this, SLOT(setGeometryDisplay()));
 		connect(_ui->actionDisplayFace, SIGNAL(triggered()), this, SLOT(setGeometryDisplay()));
-		//设置几何选取模式(点、线、面)
+		// 设置几何选取模式(点、线、面)
 		_selectGeometryModeMapper = new QSignalMapper(this);
 		connect(_ui->actionSelectOff, SIGNAL(triggered()), _selectGeometryModeMapper, SLOT(map()));
-		connect(_ui->actionSelectPoint, SIGNAL(triggered()), _selectGeometryModeMapper, SLOT(map()));
-		connect(_ui->actionSelectCurve, SIGNAL(triggered()), _selectGeometryModeMapper, SLOT(map()));
+		connect(_ui->actionSelectPoint, SIGNAL(triggered()), _selectGeometryModeMapper,
+				SLOT(map()));
+		connect(_ui->actionSelectCurve, SIGNAL(triggered()), _selectGeometryModeMapper,
+				SLOT(map()));
 		connect(_ui->actionSelectFace, SIGNAL(triggered()), _selectGeometryModeMapper, SLOT(map()));
-		connect(_ui->actionSelectGeometryBody, SIGNAL(triggered()), _selectGeometryModeMapper, SLOT(map()));
-		_selectGeometryModeMapper->setMapping(_ui->actionSelectOff, (int)ModuleBase::SelectModel::None);
-		_selectGeometryModeMapper->setMapping(_ui->actionSelectPoint, (int)ModuleBase::SelectModel::GeometryWinPoint);
-		_selectGeometryModeMapper->setMapping(_ui->actionSelectCurve, (int)ModuleBase::SelectModel::GeometryWinCurve);
-		_selectGeometryModeMapper->setMapping(_ui->actionSelectFace, (int)ModuleBase::SelectModel::GeometryWinSurface);
-		_selectGeometryModeMapper->setMapping(_ui->actionSelectGeometryBody, (int)ModuleBase::SelectModel::GeometryWinBody);
+		connect(_ui->actionSelectGeometryBody, SIGNAL(triggered()), _selectGeometryModeMapper,
+				SLOT(map()));
+		_selectGeometryModeMapper->setMapping(_ui->actionSelectOff,
+											  (int)ModuleBase::SelectModel::None);
+		_selectGeometryModeMapper->setMapping(_ui->actionSelectPoint,
+											  (int)ModuleBase::SelectModel::GeometryWinPoint);
+		_selectGeometryModeMapper->setMapping(_ui->actionSelectCurve,
+											  (int)ModuleBase::SelectModel::GeometryWinCurve);
+		_selectGeometryModeMapper->setMapping(_ui->actionSelectFace,
+											  (int)ModuleBase::SelectModel::GeometryWinSurface);
+		_selectGeometryModeMapper->setMapping(_ui->actionSelectGeometryBody,
+											  (int)ModuleBase::SelectModel::GeometryWinBody);
 
-		connect(_selectGeometryModeMapper, SIGNAL(mapped(int)), this, SLOT(selectGeometryModelChanged(int)));
-		connect(_selectGeometryModeMapper, SIGNAL(mapped(int)), this, SIGNAL(selectModelChangedSig(int)));
+		connect(_selectGeometryModeMapper, SIGNAL(mapped(int)), this,
+				SLOT(selectGeometryModelChanged(int)));
+		connect(_selectGeometryModeMapper, SIGNAL(mapped(int)), this,
+				SIGNAL(selectModelChangedSig(int)));
 
-		connect(_ui->actionPre_Window, SIGNAL(triggered()), _subWindowManager, SLOT(openPreWindow()));
+		connect(_ui->actionPre_Window, SIGNAL(triggered()), _subWindowManager,
+				SLOT(openPreWindow()));
 
-		connect(this, SIGNAL(importGeometrySig(QStringList)), this, SLOT(importGeometry(QStringList)));
+		connect(this, SIGNAL(importGeometrySig(QStringList)), this,
+				SLOT(importGeometry(QStringList)));
 		connect(this, SIGNAL(exportGeometrySig(QString)), this, SLOT(exportGeometry(QString)));
 
 		connect(_ui->actionCreate_Sketch, SIGNAL(triggered()), this, SLOT(on_sketchClicked()));
-		connect(this, SIGNAL(showGraphRangeSig(double, double)), this, SLOT(showGraphRange(double, double)));
-		connect(this, SIGNAL(startSketchSig(bool, double *, double *)), this, SLOT(startSketch(bool)));
+		connect(this, SIGNAL(showGraphRangeSig(double, double)), this,
+				SLOT(showGraphRange(double, double)));
+		connect(this, SIGNAL(startSketchSig(bool, double*, double*)), this,
+				SLOT(startSketch(bool)));
 		//		connect(this, SIGNAL(updateActionsStatesSig()), this, SLOT(updateActionsStates()));
 		connect(this, SIGNAL(updatePreMeshActorSig()), this, SLOT(updatePreMeshActor()));
 		connect(this, SIGNAL(updatePreGeometryActorSig()), this, SLOT(updatePreGeometryActor()));
@@ -311,27 +333,27 @@ namespace GUI
 
 	void MainWindow::registerMoudel()
 	{
-		///添加ProjectWindow
+		/// 添加ProjectWindow
 		_controlPanel = new MainWidget::ControlPanel(this);
 		_controlPanel->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
 		addDockWidget(Qt::LeftDockWidgetArea, _controlPanel);
 		this->setCorner(Qt::Corner::BottomLeftCorner, Qt::LeftDockWidgetArea);
-		///添加MessageWindow
+		/// 添加MessageWindow
 		_messageWindow = new MainWidget::MessageWindow(this);
 		_messageWindow->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
 		addDockWidget(Qt::BottomDockWidgetArea, _messageWindow);
-		///添加ProcessWindow
+		/// 添加ProcessWindow
 		_processWindow = new MainWidget::ProcessWindow(this);
 		_processWindow->setAllowedAreas(Qt::BottomDockWidgetArea | Qt::TopDockWidgetArea);
 		addDockWidget(Qt::BottomDockWidgetArea, _processWindow);
 	}
 
-	Ui::MainWindowRibbon *MainWindow::getUi()
+	Ui::MainWindowRibbon* MainWindow::getUi()
 	{
 		return _ui;
 	}
 
-	Translator *MainWindow::GetTranslator()
+	Translator* MainWindow::GetTranslator()
 	{
 		return _translator;
 	}
@@ -341,31 +363,31 @@ namespace GUI
 		_ui->statusbar->showMessage(info, 10000);
 	}
 
-	void MainWindow::setMD5(const QString &md5)
+	void MainWindow::setMD5(const QString& md5)
 	{
 		_MD5 = md5;
 	}
 
-	void MainWindow::setCurrentFile(const QString &file)
+	void MainWindow::setCurrentFile(const QString& file)
 	{
-		if (!file.isEmpty())
-		{
+		if(!file.isEmpty()) {
 			QFileInfo F(file);
-			if (!F.exists())
+			if(!F.exists())
 				return;
 			_currentFile = F.absoluteFilePath();
 		}
 
-		QString lang = Setting::BusAPI::instance()->getLanguage();
-		QString title;
-		ConfigOption::GlobalConfig *g = ConfigOption::ConfigOption::getInstance()->getGlobalConfig();
+		QString						lang = Setting::BusAPI::instance()->getLanguage();
+		QString						title;
+		ConfigOption::GlobalConfig* g =
+			ConfigOption::ConfigOption::getInstance()->getGlobalConfig();
 
 		title = g->getSoftName();
-		if (lang.toLower() == "chinese")
+		if(lang.toLower() == "chinese")
 			title = g->getChineseName();
-		if (title.isEmpty())
+		if(title.isEmpty())
 			title = "FastCAE";
-		if (!_currentFile.isEmpty())
+		if(!_currentFile.isEmpty())
 			title = QString("%1-[%2]").arg(title).arg(_currentFile);
 
 		this->setWindowTitle(title);
@@ -381,26 +403,26 @@ namespace GUI
 		_subWindowManager->updatePreGeometryActor();
 	}
 
-	void MainWindow::closeEvent(QCloseEvent *event)
+	void MainWindow::closeEvent(QCloseEvent* event)
 	{
 		QString md5 = _signalHandler->getMD5();
-		if (md5 != _MD5)
-		{
-			int nRet = QMessageBox::warning(this, tr("Save"), tr("Do you want to save before exit ?"), tr("Yes"), tr("No"), tr("Cancel"));
+		if(md5 != _MD5) {
+			int nRet =
+				QMessageBox::warning(this, tr("Save"), tr("Do you want to save before exit ?"),
+									 tr("Yes"), tr("No"), tr("Cancel"));
 
-			switch (nRet)
-			{
-			case 2:
-				event->ignore();
-				return;
-			case 0:
-				this->on_actionSave();
-			case 1:
-				// clean data
-			default:
-				break;
+			switch(nRet) {
+				case 2:
+					event->ignore();
+					return;
+				case 0:
+					this->on_actionSave();
+				case 1:
+					// clean data
+				default:
+					break;
 			}
-			if (nullptr != event)
+			if(nullptr != event)
 				event->accept();
 		}
 		//		if (!_designModel)
@@ -416,51 +438,46 @@ namespace GUI
 	void MainWindow::ChangeLanguage(QString lang)
 	{
 		Setting::BusAPI::instance()->setLanguage(lang);
-		if (nullptr == _ui)
+		if(nullptr == _ui)
 			return;
-		if (lang == "English")
-		{
+		if(lang == "English") {
 			_ui->actionChinese->setChecked(false);
 			_ui->actionEnglish->setChecked(true);
 			_translator->toEnglish();
-		}
-		else if (lang == "Chinese")
-		{
+		} else if(lang == "Chinese") {
 			_ui->actionChinese->setChecked(true);
 			_ui->actionEnglish->setChecked(false);
 			_translator->toChinese();
 		}
 
 		Plugins::PluginManager::getInstance()->reTranslate(lang);
-		if (isUseRibbon())
+		if(isUseRibbon())
 			_ui->retranslateRibbonUi(this);
 		else
 			_ui->retranslateUi(this);
 
-		if (_recentMenu != nullptr)
+		if(_recentMenu != nullptr)
 			_recentMenu->setTitle(tr("Recent"));
 
 		_controlPanel->reTranslate();
 		_messageWindow->reTranslate();
 		_subWindowManager->reTranslate();
-		if (_processWindow != nullptr)
+		if(_processWindow != nullptr)
 			_processWindow->reTranslate();
 
-		ConfigOption::GlobalConfig *g = ConfigOption::ConfigOption::getInstance()->getGlobalConfig();
+		ConfigOption::GlobalConfig* g =
+			ConfigOption::ConfigOption::getInstance()->getGlobalConfig();
 		QString title = "FastCAE";
-		if (lang.toLower() == "chinese")
-		{
+		if(lang.toLower() == "chinese") {
 			QString f = g->getChineseName();
-			if (!f.isEmpty())
+			if(!f.isEmpty())
 				title = f;
-		}
-		else
-		{
+		} else {
 			QString f = g->getSoftName();
-			if (!f.isEmpty())
+			if(!f.isEmpty())
 				title = f;
 		}
-		if (!_currentFile.isEmpty())
+		if(!_currentFile.isEmpty())
 			title = QString("%1-[%2]").arg(title).arg(_currentFile);
 
 		this->setWindowTitle(title);
@@ -476,24 +493,25 @@ namespace GUI
 	{
 		/*		emit sig_action_open();*/
 		QString md5 = _signalHandler->getMD5();
-		if (md5 != _MD5)
-		{
+		if(md5 != _MD5) {
 			QMessageBox::StandardButton but;
-			but = QMessageBox::warning(this, tr("Warning"), tr("Do you want to save current data ?"), QMessageBox::Yes | QMessageBox::No);
-			if (but == QMessageBox::Yes)
+			but =
+				QMessageBox::warning(this, tr("Warning"), tr("Do you want to save current data ?"),
+									 QMessageBox::Yes | QMessageBox::No);
+			if(but == QMessageBox::Yes)
 				on_actionSave();
 		}
 		//		_signalHandler->clearData();
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
+		QString dir		= Setting::BusAPI::instance()->getWorkingDir();
 
 		QString fillter = tr("Project file(*.diso);;Project file(*.xml)");
 #ifdef Q_OS_LINUX
 		fillter = tr("DISO file(*.diso);;XML file(*.xml)");
 #endif
-		QString title = tr("Open a project");
+		QString title	 = tr("Open a project");
 		QString filePath = QFileDialog::getOpenFileName(this, title, dir, fillter);
 
-		if (filePath.isEmpty())
+		if(filePath.isEmpty())
 			return;
 
 		//		_signalHandler->clearData();
@@ -506,12 +524,10 @@ namespace GUI
 
 	void MainWindow::on_actionSave()
 	{
-		if (!_currentFile.isEmpty())
-		{
+		if(!_currentFile.isEmpty()) {
 			QString pycode = QString("MainWindow.saveProjectFile(\"%1\")").arg(_currentFile);
 			Py::PythonAgent::getInstance()->submit(pycode);
-		}
-		else
+		} else
 			on_actionSaveAs();
 	}
 
@@ -521,40 +537,39 @@ namespace GUI
 #ifdef Q_OS_LINUX
 		fillter = tr("DISO file(*.diso);;XML file(*.xml)");
 #endif
-		QString title = tr("Save project");
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
+		QString		title = tr("Save project");
+		QString		dir	  = Setting::BusAPI::instance()->getWorkingDir();
 		//		QString filePath = QFileDialog::getSaveFileName(this, title, dir, fillter);
 
 		QFileDialog dlg(this, title, dir, fillter);
 		dlg.setAcceptMode(QFileDialog::AcceptSave);
-		if (QDialog::Accepted != dlg.exec())
+		if(QDialog::Accepted != dlg.exec())
 			return;
 
 		QString filePath = dlg.selectedFiles().at(0);
-		if (filePath.isEmpty())
+		if(filePath.isEmpty())
 			return;
 #ifdef Q_OS_LINUX
 		bool isproj = filePath.toLower().endsWith(".diso") || filePath.toLower().endsWith(".xml");
-		if (!isproj)
-		{
+		if(!isproj) {
 			QString suffix = dlg.selectedNameFilter();
-			if (suffix.contains("diso"))
+			if(suffix.contains("diso"))
 				suffix = "diso";
-			else if (suffix.contains("xml"))
+			else if(suffix.contains("xml"))
 				suffix = "xml";
 			filePath = filePath + "." + suffix;
 		}
 #endif
 
 		bool empty = Geometry::GeometryData::getInstance()->isEmpty();
-		if (filePath.right(3).toLower() == "xml" && !empty)
-		{
-			QMessageBox::StandardButton bt = QMessageBox::warning(this, tr("Warning"), tr("Geometry will be lost! still continue?"), QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
-			if (bt == QMessageBox::No)
+		if(filePath.right(3).toLower() == "xml" && !empty) {
+			QMessageBox::StandardButton bt = QMessageBox::warning(
+				this, tr("Warning"), tr("Geometry will be lost! still continue?"),
+				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+			if(bt == QMessageBox::No)
 				return;
 		}
-		if (!filePath.isEmpty())
-		{
+		if(!filePath.isEmpty()) {
 			QString pycode = QString("MainWindow.saveProjectFile(\"%1\")").arg(filePath);
 			Py::PythonAgent::getInstance()->submit(pycode);
 		}
@@ -564,69 +579,71 @@ namespace GUI
 	{
 		QStringList suffixlist = IO::IOConfigure::getMeshImporters();
 		// QStringList list = IO::IOConfigure::getMeshImporters();
-		if (suffixlist.isEmpty())
-		{
+		if(suffixlist.isEmpty()) {
 			QMessageBox::warning(this, tr("Warning"), tr("The MeshPlugin is not installed !"));
 			return;
 		}
 
-		QStringList meshsuffix = ConfigOption::ConfigOption::getInstance()->getMeshConfig()->getImportSuffix().split(";");
+		QStringList meshsuffix =
+			ConfigOption::ConfigOption::getInstance()->getMeshConfig()->getImportSuffix().split(
+				";");
 		QStringList list;
 
-		for (QString s : meshsuffix)
-		{
-			for (int i = 0; i < suffixlist.size(); i++)
-			{
+		for(QString s : meshsuffix) {
+			for(int i = 0; i < suffixlist.size(); i++) {
 				QString suffix = suffixlist.at(i);
-				if (suffix.contains(s))
+				if(suffix.contains(s))
 					list.append(suffix);
 			}
 		}
 
 		std::sort(list.begin(), list.end());
-		QString suffixes = list.join(";;");
+		QString suffixes   = list.join(";;");
 		QString senderName = sender()->objectName();
-		int modelID = -1;
-		if (senderName.contains("Only INP_"))
-		{
+		int		modelID	   = -1;
+		if(senderName.contains("Only INP_")) {
 			suffixes = list.at(0);
-			modelID = senderName.right(1).toInt();
+			modelID	 = senderName.right(1).toInt();
 		}
 
-		QString workDir = Setting::BusAPI::instance()->getWorkingDir();
+		QString		workDir = Setting::BusAPI::instance()->getWorkingDir();
 		QFileDialog dlg(this, tr("Import Mesh"), workDir, suffixes);
 		dlg.setAcceptMode(QFileDialog::AcceptOpen);
 		dlg.setFileMode(QFileDialog::ExistingFile);
-		if (dlg.exec() != QFileDialog::Accepted)
+		if(dlg.exec() != QFileDialog::Accepted)
 			return;
 
-		QString aSuffix = dlg.selectedNameFilter();
+		QString aSuffix	 = dlg.selectedNameFilter();
 		QString fileName = dlg.selectedFiles().join(",");
-		if (fileName.isEmpty())
+		if(fileName.isEmpty())
 			return;
-		QString pyCode = QString("MainWindow.importMesh(\"%1\",\"%2\",%3)").arg(fileName).arg(aSuffix).arg(modelID);
+		QString pyCode = QString("MainWindow.importMesh(\"%1\",\"%2\",%3)")
+							 .arg(fileName)
+							 .arg(aSuffix)
+							 .arg(modelID);
 		Py::PythonAgent::getInstance()->submit(pyCode);
 	}
 
 	void MainWindow::on_exportGeometry()
 	{
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
+		QString						  dir = Setting::BusAPI::instance()->getWorkingDir();
 
-		ConfigOption::GeometryConfig *geoconfig = ConfigOption::ConfigOption::getInstance()->getGeometryConfig();
-		QString conSuffix = geoconfig->getExportSuffix().toLower();
-		QStringList sl = conSuffix.split(";");
+		ConfigOption::GeometryConfig* geoconfig =
+			ConfigOption::ConfigOption::getInstance()->getGeometryConfig();
+		QString		conSuffix = geoconfig->getExportSuffix().toLower();
+		QStringList sl		  = conSuffix.split(";");
 
 		conSuffix.clear();
-		for (QString s : sl)
-		{
+		for(QString s : sl) {
 			conSuffix += " *." + s;
 		}
 		conSuffix = QString("Geometry Files(%1)").arg(conSuffix);
 		QString regSuffix{};
 
-		QString title = tr("Export Geometry");
-		QString filename = QFileDialog::getSaveFileName(this, title, dir, conSuffix + regSuffix /* + ";;All Files(*.*)"*/);
-		if (filename.isEmpty())
+		QString title	 = tr("Export Geometry");
+		QString filename = QFileDialog::getSaveFileName(
+			this, title, dir, conSuffix + regSuffix /* + ";;All Files(*.*)"*/);
+		if(filename.isEmpty())
 			return;
 
 		QString pycode = QString("MainWindow.exportGeometry(\"%1\")").arg(filename);
@@ -637,51 +654,51 @@ namespace GUI
 	{
 		QStringList suffixlist = IO::IOConfigure::getMeshExporters();
 		// QStringList list = IO::IOConfigure::getMeshImporters();
-		if (suffixlist.isEmpty())
-		{
+		if(suffixlist.isEmpty()) {
 			QMessageBox::warning(this, tr("Warning"), tr("The MeshPlugin is not installed !"));
 			return;
 		}
 
-		if (MeshData::MeshData::getInstance()->getKernalCount() == 0)
-		{
+		if(MeshData::MeshData::getInstance()->getKernalCount() == 0) {
 			QMessageBox::warning(this, tr("Warning"), tr("No one has any grid!"));
 			return;
 		}
 
-		QStringList meshsuffix = ConfigOption::ConfigOption::getInstance()->getMeshConfig()->getExportSuffix().split(";");
+		QStringList meshsuffix =
+			ConfigOption::ConfigOption::getInstance()->getMeshConfig()->getExportSuffix().split(
+				";");
 		QStringList list;
 
-		for (QString s : meshsuffix)
-		{
-			for (int i = 0; i < suffixlist.size(); i++)
-			{
+		for(QString s : meshsuffix) {
+			for(int i = 0; i < suffixlist.size(); i++) {
 				QString suffix = suffixlist.at(i);
-				if (suffix.contains(s))
+				if(suffix.contains(s))
 					list.append(suffix);
 			}
 		}
 
 		std::sort(list.begin(), list.end());
-		QString suffixes = list.join(";;");
+		QString suffixes   = list.join(";;");
 		QString senderName = sender()->objectName();
-		int modelID = -1;
-		if (senderName.contains("Only INP_"))
-		{
+		int		modelID	   = -1;
+		if(senderName.contains("Only INP_")) {
 			suffixes = list.at(0);
-			modelID = senderName.right(1).toInt();
+			modelID	 = senderName.right(1).toInt();
 		}
-		QString workDir = Setting::BusAPI::instance()->getWorkingDir();
+		QString		workDir = Setting::BusAPI::instance()->getWorkingDir();
 		QFileDialog dlg(this, tr("Export Mesh"), workDir, suffixes);
 		dlg.setAcceptMode(QFileDialog::AcceptSave);
-		if (dlg.exec() != QFileDialog::FileName)
+		if(dlg.exec() != QFileDialog::FileName)
 			return;
 
-		QString aSuffix = dlg.selectedNameFilter();
+		QString aSuffix	  = dlg.selectedNameFilter();
 		QString aFileName = dlg.selectedFiles().join(",");
-		if (aFileName.isEmpty())
+		if(aFileName.isEmpty())
 			return;
-		QString pyCode = QString("MainWindow.exportMesh(\"%1\",\"%2\",%3)").arg(aFileName).arg(aSuffix).arg(modelID);
+		QString pyCode = QString("MainWindow.exportMesh(\"%1\",\"%2\",%3)")
+							 .arg(aFileName)
+							 .arg(aSuffix)
+							 .arg(modelID);
 		Py::PythonAgent::getInstance()->submit(pyCode);
 	}
 
@@ -690,11 +707,11 @@ namespace GUI
 	// 		_signalHandler->importMesh(fileName, suffix, modelId);
 	// 	}
 
-	void MainWindow::importMeshDataset(vtkDataSet *dataset)
+	void MainWindow::importMeshDataset(vtkDataSet* dataset)
 	{
-		if (dataset == nullptr)
+		if(dataset == nullptr)
 			return;
-		MeshData::MeshKernal *k = new MeshData::MeshKernal;
+		MeshData::MeshKernal* k = new MeshData::MeshKernal;
 		k->setMeshData(dataset);
 		MeshData::MeshData::getInstance()->appendMeshKernal(k);
 		_subWindowManager->openPreWindow();
@@ -705,29 +722,30 @@ namespace GUI
 
 	void MainWindow::on_importGeometry()
 	{
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
-		ConfigOption::GeometryConfig *geoconfig = ConfigOption::ConfigOption::getInstance()->getGeometryConfig();
-		QString conSuffix = geoconfig->getImportSuffix().toLower();
-		QStringList sl = conSuffix.split(";");
+		QString						  dir = Setting::BusAPI::instance()->getWorkingDir();
+		ConfigOption::GeometryConfig* geoconfig =
+			ConfigOption::ConfigOption::getInstance()->getGeometryConfig();
+		QString		conSuffix = geoconfig->getImportSuffix().toLower();
+		QStringList sl		  = conSuffix.split(";");
 		conSuffix.clear();
-		for (QString s : sl)
-		{
+		for(QString s : sl) {
 			conSuffix += " *." + s;
 		}
 		conSuffix = QString("Geometry Files(%1)").arg(conSuffix);
-		QString regSuffix{};
+		QString		regSuffix{};
 
-		QString title = tr("Import Geometry");
-		QStringList filenames = QFileDialog::getOpenFileNames(this, title, dir, conSuffix + regSuffix /*+ ";;All Files(*.*)"*/);
-		if (filenames.isEmpty())
+		QString		title	  = tr("Import Geometry");
+		QStringList filenames = QFileDialog::getOpenFileNames(
+			this, title, dir, conSuffix + regSuffix /*+ ";;All Files(*.*)"*/);
+		if(filenames.isEmpty())
 			return;
 		/*
 									QString files = filenames.join(",");
-									QString pycode = QString("MainWindow.importGeometry(\"%1\")").arg(files);
+									QString pycode =
+		   QString("MainWindow.importGeometry(\"%1\")").arg(files);
 					*/
 		QStringList pyCodes;
-		for (int i = 0; i < filenames.size(); i++)
-		{
+		for(int i = 0; i < filenames.size(); i++) {
 			pyCodes.append(QString("MainWindow.importGeometry(\"%1\")").arg(filenames[i]));
 		}
 		Py::PythonAgent::getInstance()->submit(pyCodes);
@@ -736,13 +754,13 @@ namespace GUI
 	void MainWindow::importGeometry(QStringList filenames)
 	{
 		_subWindowManager->openPreWindow();
-		if (!_signalHandler->importGeometry(filenames))
+		if(!_signalHandler->importGeometry(filenames))
 			return;
 	}
 
 	void MainWindow::exportGeometry(QString f)
 	{
-		if (!_signalHandler->exportGeometry(f))
+		if(!_signalHandler->exportGeometry(f))
 			return;
 		Py::PythonAgent::getInstance()->unLock();
 	}
@@ -757,9 +775,7 @@ namespace GUI
 		_signalHandler->generateSurfaceMesh();
 	}
 
-	void MainWindow::on_genMesh()
-	{
-	}
+	void MainWindow::on_genMesh() {}
 
 	void MainWindow::setWorkingDir()
 	{
@@ -774,17 +790,17 @@ namespace GUI
 
 	void MainWindow::on_solve()
 	{
-		bool showDlg = true;
+		bool						   showDlg = true;
 		MainWidget::ProjcctSolveDialog dlg(this, showDlg);
-		if (showDlg)
+		if(showDlg)
 			dlg.exec();
 	}
 
 	void MainWindow::solveProject(int id)
 	{
-		bool showDlg = true;
+		bool						   showDlg = true;
 		MainWidget::ProjcctSolveDialog dlg(this, showDlg, id);
-		if (showDlg)
+		if(showDlg)
 			dlg.exec();
 	}
 
@@ -807,30 +823,29 @@ namespace GUI
 		_ui->actionBoxMeshNode->setChecked(false);
 		_ui->actionBoxMeshCell->setChecked(false);
 
-		switch (model)
-		{
-		case (int)ModuleBase::SelectModel::None:
-			_ui->actionSelectOff->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::MeshNode:
-			_ui->actionSelectMeshNode->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::MeshCell:
-			_ui->actionSelectMeshCell->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::BoxMeshNode:
-			_ui->actionBoxMeshNode->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::BoxMeshCell:
-			_ui->actionBoxMeshCell->setChecked(true);
-			break;
+		switch(model) {
+			case(int)ModuleBase::SelectModel::None:
+				_ui->actionSelectOff->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::MeshNode:
+				_ui->actionSelectMeshNode->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::MeshCell:
+				_ui->actionSelectMeshCell->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::BoxMeshNode:
+				_ui->actionBoxMeshNode->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::BoxMeshCell:
+				_ui->actionBoxMeshCell->setChecked(true);
+				break;
 
-		default:
-			break;
+			default:
+				break;
 		}
 	}
 
-	SubWindowManager *MainWindow::getSubWindowManager()
+	SubWindowManager* MainWindow::getSubWindowManager()
 	{
 		return _subWindowManager;
 	}
@@ -843,27 +858,23 @@ namespace GUI
 
 	void MainWindow::on_userManual()
 	{
-		QString file = ConfigOption::ConfigOption::getInstance()->getGlobalConfig()->GetUserManual();
+		QString file =
+			ConfigOption::ConfigOption::getInstance()->getGlobalConfig()->GetUserManual();
 		QString userManulFile = QApplication::applicationDirPath() + "/../Doc/" + file;
 
-		if (file.isEmpty())
-		{
+		if(file.isEmpty()) {
 			QDesktopServices::openUrl(QUrl("http://www.fastcae.com/index.php?mod=document"));
 			return;
 		}
 
 		QFile f(userManulFile);
-		if (!f.exists())
-		{
+		if(!f.exists()) {
 			ModuleBase::Message msg;
-			msg.type = Common::Message::Warning;
+			msg.type	= Common::Message::Warning;
 			msg.message = tr("Please make sure \" %1 \" file exist!").arg(userManulFile);
 			emit printMessageToMessageWindow(msg);
-		}
-		else
-		{
-			if (!QDesktopServices::openUrl(QUrl::fromLocalFile(userManulFile)))
-			{
+		} else {
+			if(!QDesktopServices::openUrl(QUrl::fromLocalFile(userManulFile))) {
 				QString mess = QString(tr("%1 not exist !")).arg(file);
 				QMessageBox::warning(this, QString(tr("Warning")), mess);
 			}
@@ -876,7 +887,7 @@ namespace GUI
 		bool showEdge = _ui->actionDisplayWireFrame->isChecked();
 		bool showFace = _ui->actionDisplaySurface->isChecked();
 
-		auto gp = Setting::BusAPI::instance()->getGraphOption();
+		auto gp		  = Setting::BusAPI::instance()->getGraphOption();
 		gp->isShowMeshNode(showNode);
 		gp->isShowMeshEdge(showEdge);
 		gp->isShowMeshFace(showFace);
@@ -892,42 +903,40 @@ namespace GUI
 		_ui->actionSelectCurve->setChecked(false);
 		_ui->actionSelectFace->setChecked(false);
 		_ui->actionSelectGeometryBody->setChecked(false);
-		switch (m)
-		{
-		case (int)ModuleBase::SelectModel::None:
-			_ui->actionSelectOff->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::GeometryPoint:
-		case (int)ModuleBase::SelectModel::GeometryWinPoint:
-			_ui->actionSelectPoint->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::GeometryCurve:
-		case (int)ModuleBase::SelectModel::GeometryWinCurve:
-			_ui->actionSelectCurve->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::GeometrySurface:
-		case (int)ModuleBase::SelectModel::GeometryWinSurface:
-			_ui->actionSelectFace->setChecked(true);
-			break;
-		case (int)ModuleBase::SelectModel::GeometryBody:
-		case (int)ModuleBase::SelectModel::GeometryWinBody:
-			_ui->actionSelectGeometryBody->setChecked(true);
-			break;
-			;
-		default:
-			break;
+		switch(m) {
+			case(int)ModuleBase::SelectModel::None:
+				_ui->actionSelectOff->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::GeometryPoint:
+			case(int)ModuleBase::SelectModel::GeometryWinPoint:
+				_ui->actionSelectPoint->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::GeometryCurve:
+			case(int)ModuleBase::SelectModel::GeometryWinCurve:
+				_ui->actionSelectCurve->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::GeometrySurface:
+			case(int)ModuleBase::SelectModel::GeometryWinSurface:
+				_ui->actionSelectFace->setChecked(true);
+				break;
+			case(int)ModuleBase::SelectModel::GeometryBody:
+			case(int)ModuleBase::SelectModel::GeometryWinBody:
+				_ui->actionSelectGeometryBody->setChecked(true);
+				break;
+				;
+			default:
+				break;
 		}
 		//		emit selectGeoActiveSig(active);
 	}
 
 	void MainWindow::setGeometryDisplay()
 	{
+		bool				  checkvertex = _ui->actionDisplayPoint->isChecked();
+		bool				  checkcurve  = _ui->actionDisplayCurve->isChecked();
+		bool				  checkface	  = _ui->actionDisplayFace->isChecked();
 
-		bool checkvertex = _ui->actionDisplayPoint->isChecked();
-		bool checkcurve = _ui->actionDisplayCurve->isChecked();
-		bool checkface = _ui->actionDisplayFace->isChecked();
-
-		Setting::GraphOption *gp = Setting::BusAPI::instance()->getGraphOption();
+		Setting::GraphOption* gp		  = Setting::BusAPI::instance()->getGraphOption();
 		gp->isShowGeoPoint(checkvertex);
 		gp->isShowGeoEdge(checkcurve);
 		gp->isShowGeoSurface(checkface);
@@ -937,23 +946,20 @@ namespace GUI
 
 	void MainWindow::updateRecentMenu()
 	{
-		if (_recentMenu == nullptr)
-		{
+		if(_recentMenu == nullptr) {
 			_recentMenu = new QMenu(tr("Recent"));
 			_ui->menuFile->addMenu(_recentMenu);
 		}
 		_recentMenu->clear();
 
-		if (_recentFileMapper == nullptr)
-		{
+		if(_recentFileMapper == nullptr) {
 			_recentFileMapper = new QSignalMapper;
 		}
 		_recentFileMapper->disconnect();
 		QStringList rencentFile = Setting::BusAPI::instance()->getRencetFiles();
-		for (int i = 0; i < rencentFile.size(); ++i)
-		{
-			QString f = rencentFile.at(i);
-			QAction *action = _recentMenu->addAction(f);
+		for(int i = 0; i < rencentFile.size(); ++i) {
+			QString	 f		= rencentFile.at(i);
+			QAction* action = _recentMenu->addAction(f);
 			action->setStatusTip(f);
 			connect(action, SIGNAL(triggered()), _recentFileMapper, SLOT(map()));
 			_recentFileMapper->setMapping(action, f);
@@ -963,11 +969,9 @@ namespace GUI
 
 	void MainWindow::setActionVisible(QString objname, bool enable)
 	{
-		QList<QAction *> acs = this->findChildren<QAction *>();
-		for (QAction *a : acs)
-		{
-			if (a->objectName().toLower() == objname.toLower())
-			{
+		QList<QAction*> acs = this->findChildren<QAction*>();
+		for(QAction* a : acs) {
+			if(a->objectName().toLower() == objname.toLower()) {
 				a->setVisible(enable);
 				break;
 			}
@@ -977,25 +981,25 @@ namespace GUI
 	void MainWindow::openRencentFile(QString file)
 	{
 		QFileInfo info(file);
-		if (!info.exists())
-		{
+		if(!info.exists()) {
 			QMessageBox::warning(this, tr("Warning"), tr("File \"%1\" is not exist !"));
 			return;
 		}
 
 		QString md5 = _signalHandler->getMD5();
-		if (md5 != _MD5)
-		{
+		if(md5 != _MD5) {
 			QMessageBox::StandardButton but;
-			but = QMessageBox::warning(this, tr("Warning"), tr("Do you want to save current data ?"), QMessageBox::Yes | QMessageBox::No);
-			if (but == QMessageBox::Yes)
+			but =
+				QMessageBox::warning(this, tr("Warning"), tr("Do you want to save current data ?"),
+									 QMessageBox::Yes | QMessageBox::No);
+			if(but == QMessageBox::Yes)
 				on_actionSave();
 		}
 		_signalHandler->clearData(false);
 		QString dir = Setting::BusAPI::instance()->getWorkingDir();
 
-		bool ok = _signalHandler->openProjectFile(file);
-		if (!ok)
+		bool	ok	= _signalHandler->openProjectFile(file);
+		if(!ok)
 			return;
 		_subWindowManager->openPreWindow();
 		_subWindowManager->updatePreActors();
@@ -1006,19 +1010,19 @@ namespace GUI
 		emit updateActionStatesSig();
 	}
 
-	void MainWindow::keyPressEvent(QKeyEvent *e)
+	void MainWindow::keyPressEvent(QKeyEvent* e)
 	{
 		Q_UNUSED(e)
-			qDebug() << "press";
+		qDebug() << "press";
 	}
 
-	void MainWindow::keyReleaseEvent(QKeyEvent *e)
+	void MainWindow::keyReleaseEvent(QKeyEvent* e)
 	{
 		Q_UNUSED(e)
-			qDebug() << "release";
+		qDebug() << "release";
 	}
 
-	void MainWindow::showEvent(QShowEvent *e)
+	void MainWindow::showEvent(QShowEvent* e)
 	{
 		QMainWindow::showEvent(e);
 		_signalHandler->showUserGuidence(true);
@@ -1027,43 +1031,39 @@ namespace GUI
 	bool MainWindow::isLoadRecordScripFile()
 	{
 		QFile file(qApp->applicationDirPath() + "/../temp/RecordScript.py");
-		if (!file.exists() || file.size() == 0)
+		if(!file.exists() || file.size() == 0)
 			return false;
 
-		QMessageBox::StandardButton result =
-			QMessageBox::warning(this, tr("Do you need to load?"),
-				tr("The program quit with an exception before, do you want to reload the contents?"),
-				QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+		QMessageBox::StandardButton result = QMessageBox::warning(
+			this, tr("Do you need to load?"),
+			tr("The program quit with an exception before, do you want to reload the contents?"),
+			QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
 
-		switch (result)
-		{
-		case QMessageBox::Yes:
-			Py::PythonAgent::getInstance()->execScript(file.fileName());
-			break;
-		case QMessageBox::No:
-			QFile::remove(qApp->applicationDirPath() + "/../temp/RecordScript.py");
-			break;
-		default:
-			break;
+		switch(result) {
+			case QMessageBox::Yes:
+				Py::PythonAgent::getInstance()->execScript(file.fileName());
+				break;
+			case QMessageBox::No:
+				QFile::remove(qApp->applicationDirPath() + "/../temp/RecordScript.py");
+				break;
+			default:
+				break;
 		}
 		return true;
 	}
 
 	void MainWindow::setSketchPageVisible(bool visible)
 	{
-		SARibbonBar *ribbon = ribbonBar();
-		if (ribbon->ribbonTabBar()->currentIndex() == 0)
+		SARibbonBar* ribbon = ribbonBar();
+		if(ribbon->ribbonTabBar()->currentIndex() == 0)
 			return;
 
 		// int index = -1;
-		if (visible)
-		{
+		if(visible) {
 			ribbon->showContextCategory(_ui->sketch_tool_context);
 			// index = ribbon->tabIndex(_ui->sketch_tool_page);
 			ribbon->raiseCategory(_ui->sketch_tool_page);
-		}
-		else
-		{
+		} else {
 			ribbon->hideContextCategory(_ui->sketch_tool_context);
 			// index = ribbon->tabIndex(_ui->geometry_page);
 			ribbon->raiseCategory(_ui->sketch_tool_page);
@@ -1076,15 +1076,14 @@ namespace GUI
 	{
 		Setting::BusAPI::instance()->isUseRibbon(ok);
 		bool isRibbon = this->isUseRibbon();
-		if (isRibbon == ok)
+		if(isRibbon == ok)
 			return;
 		QMessageBox mbox(QMessageBox::Information, tr("Info"), tr("Restart to load the style!"));
 		/*QPushButton *button1 = */
 		mbox.addButton(tr("Restart later"), QMessageBox::RejectRole);
-		QPushButton *button2 = mbox.addButton(tr("Restart now"), QMessageBox::YesRole);
+		QPushButton* button2 = mbox.addButton(tr("Restart now"), QMessageBox::YesRole);
 		mbox.exec();
-		if (mbox.clickedButton() == button2)
-		{
+		if(mbox.clickedButton() == button2) {
 			this->closeEvent(nullptr);
 			qApp->exit(-1000);
 		}
@@ -1095,27 +1094,24 @@ namespace GUI
 		_postToolBar = new Post::AnimationToolBar(this, _controlPanel->getPostTreeWidget());
 		Post::RenderDirector::getInstance()->setAnimationToolBar(_postToolBar);
 
-		if (ribbon)
-		{
+		if(ribbon) {
 			_postToolBar->setVisible(false);
 			auto rBar = this->ribbonBar();
-			if (rBar == nullptr)
+			if(rBar == nullptr)
 				return;
 
 			auto category = rBar->categoryByName(tr("3DRender"));
-			if (category == nullptr)
+			if(category == nullptr)
 				return;
 
-			auto pannel = category->addPannel(QString());
+			auto pannel	 = category->addPannel(QString());
 
 			auto actList = _postToolBar->actions();
-			for (auto action : actList)
-			{
+			for(auto action : actList) {
 				action->setEnabled(false);
-				if (action->objectName() == "QWidget")
-				{
+				if(action->objectName() == "QWidget") {
 					auto widget = _postToolBar->widgetForAction(action);
-					if (widget == nullptr)
+					if(widget == nullptr)
 						continue;
 					widget->setVisible(true);
 					pannel->addLargeWidget(widget);
@@ -1123,9 +1119,7 @@ namespace GUI
 				}
 				pannel->addLargeAction(action);
 			}
-		}
-		else
-		{
+		} else {
 			_postToolBar->setVisible(true);
 			this->addToolBar(_postToolBar);
 		}
@@ -1165,34 +1159,35 @@ namespace GUI
 	void MainWindow::printMessage(Common::Message type, QString m)
 	{
 		ModuleBase::Message s(type, m);
-		emit printMessageToMessageWindow(s);
+		emit				printMessageToMessageWindow(s);
 	}
 
 	void MainWindow::on_SaveScript()
 	{
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
-		QString suffix = "Python(*.py)";
-		QString title = tr("Save Script");
+		QString dir		  = Setting::BusAPI::instance()->getWorkingDir();
+		QString suffix	  = "Python(*.py)";
+		QString title	  = tr("Save Script");
 		QString filenames = QFileDialog::getSaveFileName(this, title, dir, suffix);
-		if (filenames.isEmpty())
+		if(filenames.isEmpty())
 			return;
 		Py::PythonAgent::getInstance()->saveScript(filenames);
 	}
 
 	void MainWindow::on_ExecuateScript()
 	{
-		QString fillter = "Python(*.py)";
-		QString title = tr("Execute Script");
-		QString dir = Setting::BusAPI::instance()->getWorkingDir();
+		QString fillter	 = "Python(*.py)";
+		QString title	 = tr("Execute Script");
+		QString dir		 = Setting::BusAPI::instance()->getWorkingDir();
 		QString filePath = QFileDialog::getOpenFileName(this, title, dir, fillter);
-		if (filePath.isEmpty())
+		if(filePath.isEmpty())
 			return;
 		bool ok = Py::PythonAgent::getInstance()->execScript(filePath);
-		if (!ok)
-			QMessageBox::warning(this, tr("Warning"), QString(tr("%1 execute failed !")).arg(filePath));
+		if(!ok)
+			QMessageBox::warning(this, tr("Warning"),
+								 QString(tr("%1 execute failed !")).arg(filePath));
 	}
 
-	MainWidget::ControlPanel *MainWindow::getControlPanel()
+	MainWidget::ControlPanel* MainWindow::getControlPanel()
 	{
 		return _controlPanel;
 	}
@@ -1200,16 +1195,14 @@ namespace GUI
 	void MainWindow::on_sketchClicked()
 	{
 		bool ischecked = _ui->actionCreate_Sketch->isChecked();
-		if (ischecked)
-		{
-			if (!_subWindowManager->isPreWindowOpened())
+		if(ischecked) {
+			if(!_subWindowManager->isPreWindowOpened())
 				_subWindowManager->openPreWindow();
 
-			auto dlg = new GeometryWidget::SketchPlanDialog(this, _subWindowManager->getPreWindow());
+			auto dlg =
+				new GeometryWidget::SketchPlanDialog(this, _subWindowManager->getPreWindow());
 			dlg->show();
-		}
-		else
-		{
+		} else {
 			// auto p = _subWindowManager->getPreWindow();
 			emit startSketchSig(false, nullptr, nullptr);
 		}
@@ -1218,10 +1211,9 @@ namespace GUI
 	void MainWindow::startSketch(bool s)
 	{
 		_ui->actionCreate_Sketch->setChecked(s);
-		if (isUseRibbon())
+		if(isUseRibbon())
 			setSketchPageVisible(s);
-		else
-		{
+		else {
 			_ui->GeomertryFeatureToolBar->setVisible(!s);
 			_ui->ChamferToolBar->setVisible(!s);
 			_ui->BoolToolBar->setVisible(!s);
@@ -1244,8 +1236,7 @@ namespace GUI
 
 	void MainWindow::showGraphRange(double w, double h)
 	{
-		if (_graphRange == nullptr)
-		{
+		if(_graphRange == nullptr) {
 			_graphRange = new QLabel(this);
 			_ui->statusbar->addPermanentWidget(_graphRange);
 		}
@@ -1258,17 +1249,17 @@ namespace GUI
 	// 		_signalHandler->updateActionsStates();
 	// 	}
 
-	CustomizerHelper *MainWindow::getCustomizerHelper()
+	CustomizerHelper* MainWindow::getCustomizerHelper()
 	{
 		return _customizerHelper;
 	}
 
-	SignalHandler *MainWindow::getSignalHandler()
+	SignalHandler* MainWindow::getSignalHandler()
 	{
 		return _signalHandler;
 	}
 
-	MainWidget::MessageWindow *MainWindow::getMessageWindow()
+	MainWidget::MessageWindow* MainWindow::getMessageWindow()
 	{
 		return _messageWindow;
 	}
@@ -1279,66 +1270,59 @@ namespace GUI
 		_subWindowManager->setIcon(iconPath);
 	}
 
-	QAction *MainWindow::getAction(QString &objName)
+	QAction* MainWindow::getAction(QString& objName)
 	{
-		QList<QAction *> acs = this->findChildren<QAction *>();
-		for (QAction *a : acs)
-		{
-			if (a->objectName().toLower() == objName.toLower())
+		QList<QAction*> acs = this->findChildren<QAction*>();
+		for(QAction* a : acs) {
+			if(a->objectName().toLower() == objName.toLower())
 				return a;
 		}
 		return nullptr;
 	}
 
-	QToolBar *MainWindow::getToolBar(QString &objName)
+	QToolBar* MainWindow::getToolBar(QString& objName)
 	{
-		QList<QToolBar *> tbs = this->findChildren<QToolBar *>();
-		for (auto a : tbs)
-		{
-			if (a->objectName().toLower() == objName.toLower())
+		QList<QToolBar*> tbs = this->findChildren<QToolBar*>();
+		for(auto a : tbs) {
+			if(a->objectName().toLower() == objName.toLower())
 				return a;
 		}
 		return nullptr;
 	}
 
-	QMenu *MainWindow::getMenu(QString &objName)
+	QMenu* MainWindow::getMenu(QString& objName)
 	{
-		QList<QMenu *> mes = this->findChildren<QMenu *>();
-		for (auto a : mes)
-		{
-			if (a->objectName().toLower() == objName.toLower())
+		QList<QMenu*> mes = this->findChildren<QMenu*>();
+		for(auto a : mes) {
+			if(a->objectName().toLower() == objName.toLower())
 				return a;
 		}
 		return nullptr;
 	}
 
-	QPair<QWidget *, QList<QAction *>> MainWindow::createWidgetAndAction(const QString &title, const QStringList &actionStrs)
+	QPair<QWidget*, QList<QAction*>>
+	MainWindow::createWidgetAndAction(const QString& title, const QStringList& actionStrs)
 	{
-		QAction *action{};
-		QList<QAction *> actions;
-		QPair<QWidget *, QList<QAction *>> value;
+		QAction*						 action{};
+		QList<QAction*>					 actions;
+		QPair<QWidget*, QList<QAction*>> value;
 
-		if (isUseRibbon())
-		{
-			SARibbonCategory *page = ribbonBar()->addCategoryPage(title);
+		if(isUseRibbon()) {
+			SARibbonCategory* page	 = ribbonBar()->addCategoryPage(title);
 			// 给定制的panel添加名称
-			SARibbonPannel *pannel = page->addPannel(QObject::tr("Customization"));
+			SARibbonPannel*	  pannel = page->addPannel(QObject::tr("Customization"));
 			pannel->setCanCustomize(false); // 不能编辑
 
-			for (QString actionStr : actionStrs)
-			{
+			for(QString actionStr : actionStrs) {
 				action = new QAction(actionStr, this);
 				action->setObjectName(actionStr);
 				actions.append(action);
 				pannel->addLargeAction(action);
 			}
 			value.first = page;
-		}
-		else
-		{
-			QMenu *menu = new QMenu(title);
-			for (QString actionStr : actionStrs)
-			{
+		} else {
+			QMenu* menu = new QMenu(title);
+			for(QString actionStr : actionStrs) {
 				action = new QAction(actionStr, this);
 				action->setObjectName(actionStr);
 				actions.append(action);
@@ -1350,14 +1334,14 @@ namespace GUI
 		return value;
 	}
 
-	Post::AnimationToolBar *MainWindow::getAnimationToolBar()
+	Post::AnimationToolBar* MainWindow::getAnimationToolBar()
 	{
 		return _postToolBar;
 	}
 
-	SARibbonActionsManager *MainWindow::getActionManager()
+	SARibbonActionsManager* MainWindow::getActionManager()
 	{
 		return m_ribbonActionMgr;
 	}
 
-} // end of namespace
+} // namespace GUI

@@ -1,6 +1,6 @@
 ﻿#include "STLdataExchange.h"
-#include "geometry/geometrySet.h"
-#include "geometry/geometryData.h"
+#include "Geometry/geometrySet.h"
+#include "Geometry/geometryData.h"
 #include <QFileInfo>
 #include <vtkSTLReader.h>
 

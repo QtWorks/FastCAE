@@ -1,17 +1,15 @@
-﻿#include "solveProcessManager.h"
+﻿#include "SolveProcessManager.h"
+
 #include "SolverControl/SolverControlerBase.h"
 
-
-namespace GUI
-{
+namespace GUI {
 	SolveProcessManager::~SolveProcessManager()
 	{
 		QList<SolverControl::SolverControlBase*> ss = _solvingProcess.values();
-		for (auto s : ss)
+		for(auto s : ss)
 			s->stopSolver();
 		_solvingProcess.clear();
 	}
-
 
 	bool SolveProcessManager::isSolving(int id)
 	{
@@ -22,17 +20,16 @@ namespace GUI
 	{
 		connect(p, SIGNAL(removeSolver(int)), this, SLOT(removeSolve(int)));
 		bool ok = connect(p, SIGNAL(processFinish(int)), this, SLOT(solveFinished(int)));
-		if (ok)
+		if(ok)
 			_solvingProcess.insert(id, p);
 	}
-	
-
 
 	void SolveProcessManager::solveFinished(int id)
 	{
 		auto p = _solvingProcess.value(id);
 		_solvingProcess.remove(id);
-		if (p == nullptr) return;
+		if(p == nullptr)
+			return;
 		p->stopSolver();
 	}
 
@@ -41,4 +38,4 @@ namespace GUI
 		_solvingProcess.remove(id);
 	}
 
-}
+} // namespace GUI

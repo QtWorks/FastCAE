@@ -23,12 +23,14 @@
 
 // -*- Mode: c++; tab-width: 2; indent-tabs-mode: nil; c-basic-offset: 2  -*-
 //---------------------------------------------------------------------------
-#include <QToolTip>
-#include <QPainter>
-#include <QColorDialog>
-#include "ecolorcombobox.h"
+#include "Ecolorcombobox.h"
 
-EColorComboBox::EColorComboBox(QWidget *parent) : QComboBox(parent)
+#include <QColorDialog>
+#include <QPainter>
+#include <QToolTip>
+
+EColorComboBox::EColorComboBox(QWidget* parent)
+	: QComboBox(parent)
 {
 	setEditable(false);
 	_colorDialogEnabled = false;
@@ -38,29 +40,29 @@ EColorComboBox::EColorComboBox(QWidget *parent) : QComboBox(parent)
 
 void EColorComboBox::enableColorDialog(bool enabled)
 {
-	if (_colorDialogEnabled == enabled)
+	if(_colorDialogEnabled == enabled)
 		return;
-	if (enabled)
+	if(enabled)
 		addItem(tr("More ..."));
 	else
 		removeItem(count() - 1);
 	_colorDialogEnabled = enabled;
 }
 
-bool EColorComboBox::hasColor(const QColor &c)
+bool EColorComboBox::hasColor(const QColor& c)
 {
 	int num = count();
-	if (_colorDialogEnabled)
+	if(_colorDialogEnabled)
 		num--;
-	for (int i = 0; i < num; i++)
-		if (color(i) == c)
+	for(int i = 0; i < num; i++)
+		if(color(i) == c)
 			return true;
 	return false;
 }
 
-void EColorComboBox::appendColor(const QColor &c, const QString &n)
+void EColorComboBox::appendColor(const QColor& c, const QString& n)
 {
-	if (!c.isValid() || hasColor(c))
+	if(!c.isValid() || hasColor(c))
 		return;
 	// 准备位图
 	QPixmap pix(16, 16);
@@ -70,9 +72,9 @@ void EColorComboBox::appendColor(const QColor &c, const QString &n)
 	painter.setBrush(QBrush(c));
 	painter.drawRect(1, 1, 13, 13);
 	// 添加到列表末尾
-	int i = count();
+	int		i  = count();
 	QString tn = n.isEmpty() ? c.name().toUpper() : n;
-	if (!_colorDialogEnabled)
+	if(!_colorDialogEnabled)
 		addItem(tn, QVariant(c.name()));
 	else
 		insertItem(--i, tn, QVariant(c.name()));
@@ -105,7 +107,7 @@ void EColorComboBox::appendOtherColor()
 	// setCurrentIndex(i);
 }
 // Added by jingzhe tao. 2013/07/25
-void EColorComboBox::updateOtherColor(const QColor &color)
+void EColorComboBox::updateOtherColor(const QColor& color)
 {
 	QPixmap pix(16, 16);
 	pix.fill(Qt::transparent);
@@ -120,16 +122,15 @@ void EColorComboBox::updateOtherColor(const QColor &color)
 	setItemIcon(i, QIcon(pix));
 	setCurrentIndex(i);
 }
-void EColorComboBox::insertColor(const QColor &c, const QString &n, int i)
+void EColorComboBox::insertColor(const QColor& c, const QString& n, int i)
 {
-	if (!c.isValid() || hasColor(c))
+	if(!c.isValid() || hasColor(c))
 		return;
 	int num = count();
-	if (_colorDialogEnabled)
+	if(_colorDialogEnabled)
 		num--;
-	if (i >= 0 && i < num)
-	{
-		QPixmap pix(18, 18);
+	if(i >= 0 && i < num) {
+		QPixmap	 pix(18, 18);
 		QPainter painter(&pix);
 		painter.setPen(Qt::gray);
 		painter.setBrush(QBrush(c));
@@ -138,8 +139,7 @@ void EColorComboBox::insertColor(const QColor &c, const QString &n, int i)
 		insertItem(i, tn, QVariant(c.name()));
 		setItemIcon(i, QIcon(pix));
 		setCurrentIndex(i);
-	}
-	else
+	} else
 		appendColor(c, n);
 }
 
@@ -149,21 +149,18 @@ QColor EColorComboBox::currentColor() const
 	return color(index);
 }
 
-void EColorComboBox::setCurrentColor(const QColor &c)
+void EColorComboBox::setCurrentColor(const QColor& c)
 {
 	bool existed = false;
-	for (int i = 0; i < (int)count(); i++)
-	{
-		if (color(i) == c)
-		{
+	for(int i = 0; i < (int)count(); i++) {
+		if(color(i) == c) {
 			setCurrentIndex(i);
 			_lastActivated = c;
-			existed = true;
+			existed		   = true;
 			break;
 		}
 	}
-	if (!existed)
-	{
+	if(!existed) {
 		_lastActivated = c;
 		updateOtherColor(c);
 	}
@@ -171,9 +168,9 @@ void EColorComboBox::setCurrentColor(const QColor &c)
 
 QColor EColorComboBox::color(int index) const
 {
-	if (_colorDialogEnabled && index >= count() - 1)
+	if(_colorDialogEnabled && index >= count() - 1)
 		return QColor();
-	else if (index < 0)
+	else if(index < 0)
 		return QColor();
 	else
 		return QColor(itemData(index).toString());
@@ -202,29 +199,24 @@ void EColorComboBox::emitActivatedColor(int index)
 	_lastActivated=QColor(itemData(index).toString());
 	emit activated(_lastActivated);
 	}*/
-	if (index == count() - 1)
-	{
+	if(index == count() - 1) {
 		QColor color = QColorDialog::getColor(_lastActivated, this, tr("Custom Color"));
-		if (color.isValid())
-		{
+		if(color.isValid()) {
 			this->updateOtherColor(color);
 			_lastActivated = QColor(itemData(index).toString());
-		}
-		else
-		{
+		} else {
 			setCurrentColor(_lastActivated);
 		}
 		/*if (color != _lastActivated)
 			this->updateOtherColor(color);*/
-	}
-	else
+	} else
 		_lastActivated = QColor(itemData(index).toString());
 	emit activated(_lastActivated);
 }
 
 void EColorComboBox::emitHighlightedColor(int index)
 {
-	if (!_colorDialogEnabled || index != count() - 1)
+	if(!_colorDialogEnabled || index != count() - 1)
 		emit highlighted(color(index));
 }
 
@@ -264,7 +256,7 @@ void EColorComboBox::appendBackgroundColors()
 void EColorComboBox::clearAllColors()
 {
 	clear();
-	if (_colorDialogEnabled)
+	if(_colorDialogEnabled)
 		addItem(tr("More ..."));
 }
 

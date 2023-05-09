@@ -2,7 +2,7 @@
 #include "PostAlgorithm/CGNSReaderAlgorithm.h"
 #include "PostAlgorithm/Plot3DReaderAlgorithm.h"
 #include "PostAlgorithm/TecSzpltReaderAlgorithm.h"
-#include "PostAlgorithm/NastranH5ReaderAlgorithm.h"
+//#include "PostAlgorithm/NastranH5ReaderAlgorithm.h"
 #include "RenderProperty.h"
 #include <vtkDataSet.h>
 #include <vtkDataSetReader.h>

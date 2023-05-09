@@ -1,36 +1,37 @@
 ﻿#include "CustomizerHelper.h"
-#include "MainWindow.h"
-#include "signalHandler.h"
-#include "SubWindowManager.h"
+
+#include "ConfigOptions/ConfigDataReader.h"
+#include "ConfigOptions/ConfigOptions.h"
 #include "ConfigOptions/GeometryConfig.h"
+#include "ConfigOptions/GlobalConfig.h"
 #include "ConfigOptions/MeshConfig.h"
 #include "ConfigOptions/PostConfig.h"
 #include "ConfigOptions/ProjectTreeConfig.h"
-#include "ConfigOptions/ConfigOptions.h"
-#include "ConfigOptions/ConfigDataReader.h"
-#include "ConfigOptions/GlobalConfig.h"
+#include "IO/IOConfig.h"
 #include "MainWidgets/ControlPanel.h"
 #include "MainWidgets/messageWindow.h"
+#include "MainWindow.h"
+#include "MainWindow/SARibbonMWUi.h"
 #include "PythonModule/PyAgent.h"
+#include "SARibbonBar/SARibbonBar.h"
+#include "SARibbonBar/SARibbonCategory.h"
+#include "SARibbonBar/SARibbonMainWindow.h"
 #include "Settings/BusAPI.h"
-#include "IO/IOConfig.h"
+#include "SignalHandler.h"
+#include "SubWindowManager.h"
+
 #include <QAction>
-#include <QToolBar>
+#include <QDebug>
 #include <QMenuBar>
 #include <QMessageBox>
-#include <QDebug>
-#include "SARibbonBar/SARibbonMainWindow.h"
-#include "SARibbonBar/SARibbonCategory.h"
-#include "MainWindow/SARibbonMWUi.h"
-#include "SARibbonBar/SARibbonBar.h"
+#include <QToolBar>
 
-namespace GUI
-{
-	CustomizerHelper::CustomizerHelper(MainWindow *m, Ui::MainWindowRibbon *ui)
-		: _mainWindow(m), _ui(ui)
+namespace GUI {
+	CustomizerHelper::CustomizerHelper(MainWindow* m, Ui::MainWindowRibbon* ui)
+		: _mainWindow(m)
+		, _ui(ui)
 	{
-		if (!isUseRibbon())
-		{
+		if(!isUseRibbon()) {
 			_menuList.append(_ui->menuFile);
 			_menuList.append(_ui->menuView);
 			_menuList.append(_ui->menuGeometry);
@@ -67,28 +68,23 @@ namespace GUI
 	void CustomizerHelper::startCustomizer()
 	{
 		qDebug() << "mainWindow start cus";
-		if (!isUseRibbon())
-		{
-			for (QToolBar *tb : _toolBarList)
+		if(!isUseRibbon()) {
+			for(QToolBar* tb : _toolBarList)
 				tb->setVisible(false);
 
-			for (QMenu *me : _menuList)
-			{
-				QList<QAction *> acs = me->findChildren<QAction *>();
-				for (auto a : acs)
+			for(QMenu* me : _menuList) {
+				QList<QAction*> acs = me->findChildren<QAction*>();
+				for(auto a : acs)
 					a->setVisible(false);
 			}
-		}
-		else
-		{
-			QList<SARibbonPannel *> pannels = _ui->home_page->pannelList();
+		} else {
+			QList<SARibbonPannel*> pannels = _ui->home_page->pannelList();
 			pannels += _ui->geometry_page->pannelList();
 			pannels += _ui->mesh_page->pannelList();
 			pannels += _ui->solve_page->pannelList();
 			pannels += _ui->window_page->pannelList();
 			pannels += _ui->help_page->pannelList();
-			for (SARibbonPannel *pannel : pannels)
-			{
+			for(SARibbonPannel* pannel : pannels) {
 				// modify false -> true
 				pannel->setVisible(true);
 			}
@@ -103,28 +99,24 @@ namespace GUI
 	void CustomizerHelper::finishCustomizer()
 	{
 		qDebug() << "mainWindow finish cus";
-		if (!isUseRibbon())
-		{
-			for (QToolBar *tb : _toolBarList)
+		if(!isUseRibbon()) {
+			for(QToolBar* tb : _toolBarList)
 				tb->setVisible(true);
 
-			for (QMenu *me : _menuList)
-			{
-				QList<QAction *> acs = me->findChildren<QAction *>();
-				for (auto a : acs)
+			for(QMenu* me : _menuList) {
+				QList<QAction*> acs = me->findChildren<QAction*>();
+				for(auto a : acs)
 					a->setVisible(true);
 			}
 			_ui->SketchToolBar->setVisible(false);
-		}
-		else
-		{
-			QList<SARibbonPannel *> pannels = _ui->home_page->pannelList();
+		} else {
+			QList<SARibbonPannel*> pannels = _ui->home_page->pannelList();
 			pannels += _ui->geometry_page->pannelList();
 			pannels += _ui->mesh_page->pannelList();
 			pannels += _ui->solve_page->pannelList();
 			pannels += _ui->window_page->pannelList();
 			pannels += _ui->help_page->pannelList();
-			for (SARibbonPannel *pannel : pannels)
+			for(SARibbonPannel* pannel : pannels)
 				pannel->setVisible(true);
 		}
 		_mainWindow->getControlPanel()->setVisible(true);
@@ -135,8 +127,7 @@ namespace GUI
 	bool CustomizerHelper::isUseRibbon() const
 	{
 		//		SARibbonMainWindow* ribbonwindow = qobject_cast<SARibbonMainWindow*>(_mainWindow);
-		if (_mainWindow != nullptr)
-		{
+		if(_mainWindow != nullptr) {
 			return _mainWindow->isUseRibbon();
 		}
 		return false;
@@ -145,20 +136,19 @@ namespace GUI
 	void CustomizerHelper::registerInterface()
 	{
 		QString error = this->readConfigOptions();
-		if (!error.isEmpty())
-		{
-			// 			QMessageBox::StandardButton b = QMessageBox::critical(_mainWindow, "Error", QObject::tr("Error Occured %1 ! still continue?").arg(error), QMessageBox::Yes | QMessageBox::No);
-			// 			if (b == QMessageBox::No) return;
+		if(!error.isEmpty()) {
+			// 			QMessageBox::StandardButton b = QMessageBox::critical(_mainWindow, "Error",
+			// QObject::tr("Error Occured %1 ! still continue?").arg(error), QMessageBox::Yes |
+			// QMessageBox::No); 			if (b == QMessageBox::No) return;
 		}
 
 		this->updateBasicInfo();
 
-		ConfigOption::ConfigOption *option = ConfigOption::ConfigOption::getInstance();
-		ConfigOption::GeometryConfig *geometryOption = option->getGeometryConfig();
-		ConfigOption::MeshConfig *meshOption = option->getMeshConfig();
+		ConfigOption::ConfigOption*	  option		 = ConfigOption::ConfigOption::getInstance();
+		ConfigOption::GeometryConfig* geometryOption = option->getGeometryConfig();
+		ConfigOption::MeshConfig*	  meshOption	 = option->getMeshConfig();
 
-		if (!isUseRibbon())
-		{
+		if(!isUseRibbon()) {
 			bool ok = geometryOption->isImportGeometryEnabled();
 			this->enableGeoImport(ok);
 			ok = geometryOption->isExportGeometryEnabled();
@@ -176,10 +166,10 @@ namespace GUI
 			ok = geometryOption->isGeometryCreateSetEnabled();
 			_ui->actionCreateGeoComponent->setVisible(ok);
 
-			ok = meshOption->isImportMeshEnabled();
+			ok						 = meshOption->isImportMeshEnabled();
 			const QStringList plgsin = IO::IOConfigure::getMeshImporters();
 			this->enableMeshImport(ok || (!plgsin.isEmpty()));
-			ok = meshOption->isExportMeshEnabled();
+			ok						 = meshOption->isExportMeshEnabled();
 			const QStringList plgsex = IO::IOConfigure::getMeshExporters();
 			this->enableMeshExport(ok || (!plgsex.isEmpty()));
 			ok = meshOption->isSolidMeshEnabled();
@@ -212,9 +202,7 @@ namespace GUI
 			_ui->SelectToolBar->setVisible(geoEnable || meshEnable);
 			_ui->DisplayToolBar->setVisible(geoEnable || meshEnable);
 			//		qApp->processEvents();
-		}
-		else
-		{
+		} else {
 			// ribbon的设置方式
 		}
 		_mainWindow->getControlPanel()->registerEnabledModule();
@@ -224,41 +212,39 @@ namespace GUI
 
 	QString CustomizerHelper::readConfigOptions()
 	{
-		QString error{};
+		QString						   error{};
 		// bool ok = false;
-		QString path = qApp->applicationDirPath();
-		ConfigOption::ConfigDataReader reader(path + "/../ConfigFiles/", ConfigOption::ConfigOption::getInstance());
+		QString						   path = qApp->applicationDirPath();
+		ConfigOption::ConfigDataReader reader(path + "/../ConfigFiles/",
+											  ConfigOption::ConfigOption::getInstance());
 		error = reader.read();
 
-		if (!error.isEmpty())
+		if(!error.isEmpty())
 			error.resize(error.size() - 1);
 		return error;
 	}
 
 	void CustomizerHelper::updateBasicInfo()
 	{
-		ConfigOption::ConfigOption *options = ConfigOption::ConfigOption::getInstance();
-		ConfigOption::GlobalConfig *globalConfig = options->getGlobalConfig();
+		ConfigOption::ConfigOption* options		 = ConfigOption::ConfigOption::getInstance();
+		ConfigOption::GlobalConfig* globalConfig = options->getGlobalConfig();
 
-		const QString lang = Setting::BusAPI::instance()->getLanguage();
-		QString softName = "FastCAE";
-		if (lang.toLower() == "chinese")
-		{
+		const QString				lang		 = Setting::BusAPI::instance()->getLanguage();
+		QString						softName	 = "FastCAE";
+		if(lang.toLower() == "chinese") {
 			QString f = globalConfig->getChineseName();
-			if (!f.isEmpty())
+			if(!f.isEmpty())
 				softName = f;
-		}
-		else
-		{
+		} else {
 			QString f = globalConfig->getSoftName();
-			if (!f.isEmpty())
+			if(!f.isEmpty())
 				softName = f;
 		}
 		_mainWindow->setWindowTitle(softName);
 
 		const QString logoname = globalConfig->getLogo();
-		QString path = qApp->applicationDirPath();
-		const QString logo = path + "/../ConfigFiles/icon/" + logoname;
+		QString		  path	   = qApp->applicationDirPath();
+		const QString logo	   = path + "/../ConfigFiles/icon/" + logoname;
 		qDebug() << logo;
 		_mainWindow->setIcon(logo);
 	}
@@ -275,10 +261,9 @@ namespace GUI
 
 	void CustomizerHelper::enableGeoSketch(bool on)
 	{
-		if (isUseRibbon())
+		if(isUseRibbon())
 			_ui->sketch_pannel_geometry->setVisible(on);
-		else
-		{
+		else {
 			_ui->menuSketch->setEnabled(on);
 			_ui->StartSketchToolBar->setVisible(on);
 		}
@@ -286,14 +271,11 @@ namespace GUI
 
 	void CustomizerHelper::enableGeoFeatureModeling(bool on)
 	{
-		if (isUseRibbon())
-		{
+		if(isUseRibbon()) {
 			_ui->cube_pannel->setVisible(on);
 			_ui->create_point_pannel->setVisible(on);
 			_ui->base_plate_pannel->setVisible(on);
-		}
-		else
-		{
+		} else {
 			_ui->menuFeature_Modeling->setEnabled(on);
 			_ui->GeomertryFeatureToolBar->setVisible(on);
 		}
@@ -301,14 +283,11 @@ namespace GUI
 
 	void CustomizerHelper::enableGeoFeatureOperate(bool on)
 	{
-		if (isUseRibbon())
-		{
+		if(isUseRibbon()) {
 			_ui->chamfer_pannel->setVisible(on);
 			_ui->sum_pannel->setVisible(on);
 			_ui->stretch_pannel->setVisible(on);
-		}
-		else
-		{
+		} else {
 			_ui->menuFeature_Operation->setEnabled(on);
 			_ui->ChamferToolBar->setVisible(on);
 			_ui->BoolToolBar->setVisible(on);
@@ -318,8 +297,7 @@ namespace GUI
 
 	void CustomizerHelper::enableGeoSelectAndView(bool on)
 	{
-		if (!isUseRibbon())
-		{
+		if(!isUseRibbon()) {
 			_ui->menuSelect_2->setEnabled(on);
 			_ui->menuView_3->setEnabled(on);
 		}
@@ -365,8 +343,7 @@ namespace GUI
 
 	void CustomizerHelper::enableMeshSelectAndView(bool on)
 	{
-		if (!isUseRibbon())
-		{
+		if(!isUseRibbon()) {
 			_ui->menuView_2->setEnabled(on);
 			_ui->menuSelect->setEnabled(on);
 		}
@@ -381,4 +358,4 @@ namespace GUI
 		_ui->actionBoxMeshNode->setVisible(on);
 	}
 
-}
+} // namespace GUI
