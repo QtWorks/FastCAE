@@ -33,7 +33,7 @@ namespace Geometry
 	}
 	QDomElement& GeometryParaMakeFillGap::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement element = doc->createElement("Parameter");  //创建子节点
+        QDomElement element = doc->createElement("Parameter");  //创建子节点
 		QDomAttr typeattr = doc->createAttribute("Type");
 		typeattr.setValue(this->typeToString());
 		element.setAttributeNode(typeattr);
@@ -44,7 +44,7 @@ namespace Geometry
 
 		if (_shapelist.size() == 2)
 		{
-            static QDomElement body1Ele = doc->createElement("Shape1");
+            QDomElement body1Ele = doc->createElement("Shape1");
 			QDomText body1Text = doc->createTextNode(QString::number(_shapelist.front().first->getID()));
 			body1Ele.appendChild(body1Text);
 			element.appendChild(body1Ele);

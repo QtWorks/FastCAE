@@ -135,7 +135,7 @@ namespace MeshData
     }
     QDomElement& MeshData::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
     {
-        static QDomElement meshNode = doc->createElement("Mesh");
+        QDomElement meshNode = doc->createElement("Mesh");
         const int n = _meshList.size();
         QDomElement meshKernalList = doc->createElement("Kernel");
         for (int i = 0; i < n; ++i)

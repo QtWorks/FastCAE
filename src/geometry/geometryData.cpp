@@ -177,7 +177,7 @@ namespace Geometry
 	}
 	QDomElement &GeometryData::writeToProjectFile(QDomDocument *doc, QDomElement *element, bool isdiso)
 	{
-		static QDomElement georoot = doc->createElement("Geometry");
+		QDomElement georoot = doc->createElement("Geometry");
 		element->appendChild(georoot);
 
 		int n = _geometryList.size();

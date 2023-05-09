@@ -91,8 +91,8 @@ XRandom * XRandom::instance()
 
 double XRandom::GaussRand_NORMAL()
 {
-    static double V1, V2, S;
-    static int phase = 0;
+    double V1, V2, S;
+    int phase = 0;
     double X;
 
     if (phase == 0) {

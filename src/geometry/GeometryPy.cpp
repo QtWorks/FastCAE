@@ -27,7 +27,7 @@ GEOMETRYAPI	char* getGeometrySetNameByIndex(int index)
 	//qDebug() << name;
 	std::string ba = name.toStdString();
 	const char* ch = ba.c_str();
-    static char dest[128] = { 0 };
+    char dest[128] = { 0 };
 	strcpy(dest, ch);
 	return dest;
 }
@@ -41,7 +41,7 @@ GEOMETRYAPI	char* getGeometrySetNameByID(int id)
 	qDebug() << name;
 	std::string ba = name.toStdString();
 	const char* ch = ba.c_str();
-    static char dest[128] = { 0 };
+    char dest[128] = { 0 };
 	strcpy(dest, ch);
 	return dest;
 }

@@ -48,7 +48,7 @@ namespace Material
 
 	QDomElement& Material::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement maele = doc->createElement("Material");
+        QDomElement maele = doc->createElement("Material");
 		maele.setAttribute("Name", _name);
 		maele.setAttribute("Type", _type);
 		if (_needID)

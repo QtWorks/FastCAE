@@ -153,7 +153,7 @@ namespace Geometry
 
 	QDomElement &GeoComponent::writeToProjectFile(QDomDocument *doc, QDomElement *root)
 	{
-        static QDomElement geoComponent = doc->createElement("GeoComponent");
+    	QDomElement geoComponent = doc->createElement("GeoComponent");
 		geoComponent.setAttribute("gcID", getID());
 		geoComponent.setAttribute("gcName", getName());
 		geoComponent.setAttribute("gcType", gcTypeToString(_type));

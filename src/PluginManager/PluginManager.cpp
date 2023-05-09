@@ -206,7 +206,7 @@ namespace Plugins
 
 	QDomElement &PluginManager::writeToProjectFile(QDomDocument *doc, QDomElement *parent)
 	{
-		static QDomElement pgsele = doc->createElement("Plugins");
+		QDomElement pgsele = doc->createElement("Plugins");
 		for (auto p : _pluginList)
 			p->writeToProjectFile(doc, &pgsele);
 		parent->appendChild(pgsele);

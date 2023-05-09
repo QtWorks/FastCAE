@@ -80,7 +80,7 @@ namespace ModelData
 
 	QDomElement& ModelDataBaseExtend::writeToProjectFile(QDomDocument* doc, QDomElement* e)
 	{
-        static QDomElement element = ModelDataBase::writeToProjectFile(doc, e);
+        QDomElement element = ModelDataBase::writeToProjectFile(doc, e);
 		QDomElement propele = doc->createElement("Property");
 		QList<int> setidlist = _setProperty.keys();
 		for (int i = 0; i < setidlist.size(); ++i)

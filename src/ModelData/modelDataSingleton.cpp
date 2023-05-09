@@ -108,7 +108,7 @@ namespace ModelData
 
 	QDomElement& ModelDataSingleton::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement modelElement = doc->createElement("ModelData");
+        QDomElement modelElement = doc->createElement("ModelData");
 		const int nmodel = _modelList.size();
 		for (int i = 0; i < nmodel; ++i)
 		{

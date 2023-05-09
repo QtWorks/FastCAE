@@ -100,7 +100,7 @@ namespace ModelData
 
 	QDomElement &ModelDataBase::writeToProjectFile(QDomDocument *doc, QDomElement *parent)
 	{
-		static QDomElement modelEle = doc->createElement("Model");
+		QDomElement modelEle = doc->createElement("Model");
 		modelEle.setAttribute("ID", QString::number(_id));
 		//        modelEle.setAttribute("Name", _name);
 		modelEle.setAttribute("Type", getTreeTypeToSring(_treeType));

@@ -44,7 +44,7 @@ namespace MeshData
 
 	QDomElement& CgnsBCZone::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement setEle = doc->createElement("MeshSet");
+        QDomElement setEle = doc->createElement("MeshSet");
 
 		QDomAttr idAttr = doc->createAttribute("ID");
 		idAttr.setValue(QString::number(_id));

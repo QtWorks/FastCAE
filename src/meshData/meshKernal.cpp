@@ -105,7 +105,7 @@ namespace MeshData
 
 	QDomElement& MeshKernal::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement kernelele = doc->createElement("MeshKernel");
+        QDomElement kernelele = doc->createElement("MeshKernel");
 		QDomAttr idAttr = doc->createAttribute("ID");
 		idAttr.setValue(QString::number(_id));
 		kernelele.setAttributeNode(idAttr);

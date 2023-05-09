@@ -55,7 +55,7 @@ namespace Geometry
 
 	QDomElement& GeometryParaVariableFillet::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 	{
-        static QDomElement element = doc->createElement("Parameter");  //创建子节点
+        QDomElement element = doc->createElement("Parameter");  //创建子节点
 
 		QDomAttr typeattr = doc->createAttribute("Type");
 		typeattr.setValue(this->typeToString());

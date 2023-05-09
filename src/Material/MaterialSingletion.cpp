@@ -71,7 +71,7 @@ void MaterialSingleton::appendMaterial(Material* m)
 
 QDomElement& MaterialSingleton::writeToProjectFile(QDomDocument* doc, QDomElement* parent)
 {
-    static QDomElement mroot = doc->createElement("Materials");
+    QDomElement mroot = doc->createElement("Materials");
     const int n = _materialList.size();
     for (int i = 0; i < n; ++i)
     {

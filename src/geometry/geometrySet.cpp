@@ -176,7 +176,7 @@ const TopoDS_Shape& GeometrySet::getRealShape(int type, int index)
 // 	}
 QDomElement& GeometrySet::writeToProjectFile(QDomDocument* doc, QDomElement* ele, bool isDiso)
 {
-    static QDomElement element = doc->createElement("GeoSet");  //创建子节点
+    QDomElement element = doc->createElement("GeoSet");  //创建子节点
     QDomAttr idattr = doc->createAttribute("ID");
     idattr.setValue(QString::number(_id));
     element.setAttributeNode(idattr);

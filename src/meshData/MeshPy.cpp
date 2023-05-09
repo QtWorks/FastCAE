@@ -17,7 +17,7 @@ MESHDATAAPI const char* getKernalNameByIndexPy(const int index)
 	if (!mk)	return "";
 	std::string cppStr = mk->getName().toStdString();
 	const char* cStr = cppStr.c_str();
-    static char name[128] = { 0 };
+    char name[128] = { 0 };
 	strcpy(name, cStr);
 	return name;
 }
@@ -28,7 +28,7 @@ MESHDATAAPI const char* getKernalNameByKidPy(const int kid)
 	if (!mk)	return "";
 	std::string cppStr = mk->getName().toStdString();
 	const char* cStr = cppStr.c_str();
-    static char name[128] = { 0 };
+    char name[128] = { 0 };
 	strcpy(name, cStr);
 	return name;
 }
@@ -54,7 +54,7 @@ MESHDATAAPI const char* getSetNameByIndexPy(const int index)
 	if (!ms)	return "";
 	std::string cppStr = ms->getName().toStdString();
 	const char* cStr = cppStr.c_str();
-    static char name[128] = { 0 };
+    char name[128] = { 0 };
 	strcpy(name, cStr);
 	return name;
 }
@@ -65,7 +65,7 @@ MESHDATAAPI const char* getSetNameBySidPy(const int sid)
 	if (!ms)	return "";
 	std::string cppStr = ms->getName().toStdString();
 	const char* cStr = cppStr.c_str();
-    static char name[128] = { 0 };
+    char name[128] = { 0 };
 	strcpy(name, cStr);
 	return name;
 }

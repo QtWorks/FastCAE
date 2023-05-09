@@ -4,99 +4,93 @@
 #ifndef _MESSAGEWINDOWBASE_H_
 #define _MESSAGEWINDOWBASE_H_
 
-#include "moduleBaseAPI.h"
+#include "Common/Types.h"
 #include "dockWidgetBase.h"
+#include "moduleBaseAPI.h"
+#include "QDateTime"
+
 #include <QMap>
 #include <QMetaType>
-#include "QDateTime"
-#include "Common/Types.h"
 
-namespace Ui
-{
+namespace Ui {
 	class MessageWindow;
 }
-namespace GUI
-{
+namespace GUI {
 	class MainWindow;
 }
 
-namespace ModuleBase
-{
-	typedef enum tag_ShowType
-	{
-		Normal_Show = 0x01,
+namespace ModuleBase {
+	typedef enum tag_ShowType {
+		Normal_Show	 = 0x01,
 		Warning_Show = 0x02,
-		Error_Show = 0x04,
+		Error_Show	 = 0x04,
 	} ShowType;
 
-	typedef struct tag_Message
-	{
+	typedef struct tag_Message {
 		tag_Message() {}
 		tag_Message(Common::Message _type, QString _message)
 		{
-			type = _type;
+			type	= _type;
 			message = _message;
-			time = QTime::currentTime().toString("hh:mm:ss");
+			time	= QTime::currentTime().toString("hh:mm:ss");
 		}
 		Common::Message type;
-		QString message;
-		QString time;
+		QString			message;
+		QString			time;
 	} Message;
 
-	typedef struct tag_TypeMessageColor
-	{
+	typedef struct tag_TypeMessageColor {
 		tag_TypeMessageColor() {}
 		tag_TypeMessageColor(Common::Message _type, QColor _typeColor, QColor _itemColor)
 		{
-			type = _type;
+			type	  = _type;
 			typeColor = _typeColor;
 			itemColor = _itemColor;
 		}
 		Common::Message type;
-		QColor typeColor;
-		QColor itemColor;
+		QColor			typeColor;
+		QColor			itemColor;
 	} TypeMessageColor;
 
-	class MODULEBASEAPI MessageWindowBase : public DockWidgetBase
-	{
+	class MODULEBASEAPI MessageWindowBase : public DockWidgetBase {
 		Q_OBJECT
 	public:
-		MessageWindowBase(GUI::MainWindow *mainwindow, QWidget *parent = 0);
+		MessageWindowBase(GUI::MainWindow* mainwindow, QWidget* parent = 0);
 		virtual ~MessageWindowBase();
-		//翻译
+		// 翻译
 		virtual void reTranslate() override;
 
-		//执行python命令
-		bool executePyscript();
+		// 执行python命令
+		bool		 executePyscript();
 		//
 	protected slots:
 		virtual void showMessage(QString message);
 		virtual void showMessage(Message message, bool first = true);
 
 	protected:
-		Ui::MessageWindow *_ui{};
+		Ui::MessageWindow* _ui{};
 
 	protected:
 		///< MG
-		void setColor(const TypeMessageColor &color);
+		void			 setColor(const TypeMessageColor& color);
 
 		TypeMessageColor color(Common::Message type) const;
 
-		void setShow(int mode);
+		void			 setShow(int mode);
 
-		int show() const;
+		int				 show() const;
 
-		void setShowType(bool _showType);
+		void			 setShowType(bool _showType);
 
-		bool showType() const;
+		bool			 showType() const;
 
-		int font();
+		int				 font();
 
-		void setFont(int _font);
+		void			 setFont(int _font);
 
-		bool eventFilter(QObject *target, QEvent *event); //事件过滤器
+		bool			 eventFilter(QObject* target, QEvent* event); // 事件过滤器
 
-		bool isParaComaand();
+		bool			 isParaComaand();
 
 	private:
 		void updateMessage();
@@ -123,16 +117,16 @@ namespace ModuleBase
 		void slot_clicked_menu_close_action();
 
 	private:
-		int m_showMode{Normal_Show | Warning_Show | Error_Show};
+		int m_showMode{ Normal_Show | Warning_Show | Error_Show };
 		QMap<Common::Message, TypeMessageColor> m_typeColors;
-		bool m_showType{true};
-		bool m_showTime{true};
-		QVector<Message> m_messages;
-		QMap<Common::Message, QString> m_typeNames{};
-		int m_fontPts{11};
-		QColor m_bkColor{QColor(0, 0, 0)};
+		bool									m_showType{ true };
+		bool									m_showTime{ true };
+		QVector<Message>						m_messages;
+		QMap<Common::Message, QString>			m_typeNames{};
+		int										m_fontPts{ 11 };
+		QColor									m_bkColor{ QColor(0, 0, 0) };
 	};
-}
+} // namespace ModuleBase
 
-//Q_DECLARE_METATYPE(ModuleBase::Message)
+Q_DECLARE_METATYPE(ModuleBase::Message)
 #endif

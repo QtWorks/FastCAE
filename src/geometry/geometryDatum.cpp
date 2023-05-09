@@ -49,7 +49,7 @@ DatumType GeometryDatum::getDatumType()
 
 QDomElement& GeometryDatum::writeToProjectFile(QDomDocument* doc, QDomElement* ele, bool isDiso /* = false */)
 {
-    static QDomElement element = doc->createElement("GeoDatum");  //创建子节点
+    QDomElement element = doc->createElement("GeoDatum");  //创建子节点
     QDomAttr idattr = doc->createAttribute("ID");
     idattr.setValue(QString::number(_id));
     element.setAttributeNode(idattr);
