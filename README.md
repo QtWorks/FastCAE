@@ -9,6 +9,39 @@
 - src： FastCAE源码
 - test： 包含单元测试代码（待整理）
 
+## 构建编译
+
+### FastCAE相关的cmake构建选项说明
+- `FASTCAE_AUTO_DOWNLOAD`：如果源码目录不存在extlib目录时是否会自动从gitee克隆依赖包。
+- `FASTCAE_DOXYGEN_DOC`：是否需要构建目标Doxygen（需要本地安装Doxygen软件）
+- `FASTCAE_ENABLE_DEV`：是否在构建完成时自动拷贝依赖文件到调试目录。(开启该选项会在每次编译完拷贝第三方依赖库文件到构建目录，会增加构建时间)
+- `FASTCAE_ENABLE_MPI`：是否开启MPI支持（目前无效）。
+- `FASTCAE_ENABLE_OPENMP`：是否开启OpenMP。
+- `FASTCAE_ENABLE_TEST`：是否构建单元测试模块（目前无效）。
+- `FASTCAE_INSTALLATION_PACKAGE`：是否构建安装包制作PACKAGE。
+
+### cmake预定义目标说明：
+- ALL_BUILD：生成所有项目。
+- INSTALL：安装FastCAE到CMAKE_INSTALL_PREFIX定义的目录。
+- PACKAGE或者package: 在Visual Studio中该目标为大写，在其它构建系统中该目标为小写，用于将FastCAE打包成安装包（exe、deb、rpm）。
+- DOXYGEN: 生成FastCAE的Doxygen格式文档（html）。
+
+### 编译视频教程
+
+#### Windows
+
+- <a href="https://www.bilibili.com/video/BV1U24y1R73n/" target="_blank">cmake 3.24.1 + Visual Studio Community 2017</a>
+- <a href="https://www.bilibili.com/video/BV1FX4y1y7T4/" target="_blank">QtCreator编译</a>
+
+
+#### Linux
+
+- <a href="https://www.bilibili.com/video/BV1iW4y1Y79p/" target="_blank">cmake + GNU GCC + make</a>
+- <a href="https://www.bilibili.com/video/BV1xd4y1q7Cm/" target="_blank">借助vscode构建、编译、安装、打包</a>
+
+### 编译说明
+
+- windows环境下使用vscode时，编译工具链只能使用Visual Studio，目前不支持MinGW工具
 
 ### extlib目录结构
 
