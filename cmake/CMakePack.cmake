@@ -75,11 +75,7 @@ if(WIN32 OR MINGW)
 		set(CPACK_NSIS_MUI_FINISHPAGE_RUN ON)
 		set(CPACK_NSIS_HELP_LINK "http://www.fastcae.com/index.php?mod=document")
 		set(CPACK_NSIS_URL_INFO_ABOUT "http://www.fastcae.com/index.php?mod=product")
-		set(CPACK_NSIS_MENU_LINKS
-			"http://www.fastcae.com/index.php?mod=document" "FastCAE文档"
-			"http://www.fastcae.com/index.php?mod=product" "FastCAE介绍"
-			"CMake Help" "http://www.fastcae.com/" "FastCAE网站"
-		)
+		set(CPACK_NSIS_MENU_LINKS "http://www.fastcae.com/" "FastCAE网站")
 		set(CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL ON)
 	elseif(WIX_EXECUTABLE)
 		list(APPEND CPACK_GENERATOR "WIX")
