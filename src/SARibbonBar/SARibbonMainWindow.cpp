@@ -47,7 +47,6 @@ SARibbonMainWindow::SARibbonMainWindow(QWidget *parent, bool useRibbon)
 {
     m_d->init();
 	m_d->useRibbon = useRibbon;
-    qDebug() << windowFlags();
     if (useRibbon) {
         qDebug() << "sa ribbon version:" << SA_RIBBON_BAR_VERSION_STR;
 		setRibbonTheme(ribbonTheme());

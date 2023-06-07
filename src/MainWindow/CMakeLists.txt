@@ -38,7 +38,7 @@ add_library(MainWindow
 #-----------------------------------------------------------------------------
 target_compile_definitions(MainWindow PRIVATE "MAINWINDOW_API")
 
-list(APPEND _depend_library PythonModule SARibbonBar Settings DataProperty MeshData Material Geometry ConfigOptions SelfDefObject ModelData ModuleBase PluginManager GmshModule PostInterface PostRenderData PostWidgets ProjectTree GeometryCommand GeometryWidgets IO SolverControl MainWidgets UserGuidence Common)
+list(APPEND _depend_library Common PythonModule SARibbonBar Settings DataProperty MeshData Material Geometry ConfigOptions SelfDefObject ModelData ModuleBase PluginManager GmshModule PostInterface PostRenderData PostWidgets ProjectTree GeometryCommand GeometryWidgets IO SolverControl MainWidgets UserGuidence Common)
 if(_WIN_)
 	list(APPEND _depend_library XGenerateReport)
 endif()

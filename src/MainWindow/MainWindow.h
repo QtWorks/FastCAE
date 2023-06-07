@@ -289,7 +289,7 @@ namespace GUI {
 		/**
 		 * @brief 更新后处理模型树
 		 */
-		void updatePostTreeSig();
+        void updatePostTreeSig();
 
 		//
 		// 更新二维曲线模型树
@@ -389,7 +389,7 @@ namespace GUI {
 		// 网格过滤
 		void on_FilterMesh();
 		// 创建VTK空间变换窗口
-		void on_VTKTranslation();
+        void on_VTKTranslation();
 
 	private:
 		/*初始化Menu*/

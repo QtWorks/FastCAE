@@ -20,19 +20,21 @@
  * DISCLAIMED.
  * ==================================================================================
  */
+#include "CommandLine.h"
+#include "FastCAEVersionMacros.h"
+#include "MainWindow/MainWindow.h"
+#include "XBeautyUI.h"
+
 #include <QApplication>
 #include <QDebug>
 #include <QFile>
-#include <QProcess>
-#include <QOpenGLContext>
 #include <QMessageBox>
-#include "MainWindow/MainWindow.h"
-#include "XBeautyUI.h"
-#include "CommandLine.h"
-#include "FastCAEVersionMacros.h"
+#include <QOpenGLContext>
+#include <QProcess>
 // #include "ConfigOptions/ConfigDataReader.h"
 // #include "ConfigOptions/ConfigOptions.h"
 // #include "ConfigOptions/GlobalConfig.h"
+#include "Common/DebugLogger.h"
 #include "Settings/BusAPI.h"
 
 #ifdef Q_OS_WIN
@@ -46,24 +48,25 @@
 
 bool testOpenGL()
 {
-	bool supportOpenGLCore = false;
-	QString currentOpenGLVersion = "";
+	bool		   supportOpenGLCore	= false;
+	QString		   currentOpenGLVersion = "";
 	QOpenGLContext ctx;
-	if (ctx.create())
-	{
+	if(ctx.create()) {
 		auto version = ctx.format();
-		if (version.majorVersion() > 3 || (version.majorVersion() == 3 && version.minorVersion() >= 3))
-		{
+		if(version.majorVersion() > 3
+		   || (version.majorVersion() == 3 && version.minorVersion() >= 3)) {
 			supportOpenGLCore = true;
-		}
-		else
-		{
-			currentOpenGLVersion = QString("%1.%2").arg(version.majorVersion()).arg(version.minorVersion());
+		} else {
+			currentOpenGLVersion =
+				QString("%1.%2").arg(version.majorVersion()).arg(version.minorVersion());
 		}
 	}
-	if (!supportOpenGLCore)
-	{
-		QMessageBox::critical(nullptr, "OpenGL Error", "Startup failed: FastCAE requires OpenGL version greater than or equal to 3.3, but the current version is " + currentOpenGLVersion, QMessageBox::Ok);
+	if(!supportOpenGLCore) {
+		QMessageBox::critical(nullptr, "OpenGL Error",
+							  "Startup failed: FastCAE requires OpenGL version greater than or "
+							  "equal to 3.3, but the current version is "
+								  + currentOpenGLVersion,
+							  QMessageBox::Ok);
 	}
 	return supportOpenGLCore;
 }
@@ -74,29 +77,28 @@ bool testOpenGL()
  * @return int 返回函数运行结果
  * @since 2.5.0
  */
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
 	// 添加Qt的对高分屏的支持
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
+#if(QT_VERSION >= QT_VERSION_CHECK(5, 6, 0))
 	QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 #endif
 
 	CommandPara para(argc, argv);
-	if (para.isHelp())
+	if(para.isHelp())
 		return 1;
 
 	QApplication app(argc, argv);
-	if (!testOpenGL())
-	{
+	if(!testOpenGL()) {
 		return 1;
 	}
 	// 	QString path = qApp->applicationDirPath();
-	// 	ConfigOption::ConfigDataReader reader(path + "/../ConfigFiles/", ConfigOption::ConfigOption::getInstance());
-	// 	reader.read();
-	// 	QString qUseRibbon = ConfigOption::ConfigOption::getInstance()->getGlobalConfig()->getUseRibbon();
-	// 	bool bUseRibbon = qUseRibbon == "yes" ? true : false;
+	// 	ConfigOption::ConfigDataReader reader(path + "/../ConfigFiles/",
+	// ConfigOption::ConfigOption::getInstance()); 	reader.read(); 	QString qUseRibbon =
+	// ConfigOption::ConfigOption::getInstance()->getGlobalConfig()->getUseRibbon(); 	bool
+	// bUseRibbon = qUseRibbon == "yes" ? true : false;
 
-	bool isRibbon = Setting::BusAPI::instance()->isUseRibbon();
+	bool			isRibbon = Setting::BusAPI::instance()->isUseRibbon();
 
 	GUI::MainWindow mainwindow(isRibbon);
 
@@ -106,9 +108,8 @@ int main(int argc, char *argv[])
 	QString qssFileName = XBeautyUI::instance()->qssFilePath();
 
 	//**************加载qss******************
-	QFile qssFile(qssFileName);
-	if (qssFile.exists())
-	{
+	QFile	qssFile(qssFileName);
+	if(qssFile.exists()) {
 		qssFile.open(QIODevice::ReadOnly);
 		QString style = qssFile.readAll();
 		qApp->setStyleSheet(style);
@@ -127,7 +128,7 @@ int main(int argc, char *argv[])
 #endif
 	//*****************************************
 
-	if (para.exec(&mainwindow))
+	if(para.exec(&mainwindow))
 		emit mainwindow.sendInfoToStatesBar(QString("Version: %1").arg(FASTCAE_VERSION));
 	else
 		return 1;
@@ -147,8 +148,7 @@ int main(int argc, char *argv[])
 #endif
 #endif
 
-	if (e == -1000)
-	{
+	if(e == -1000) {
 		QProcess::startDetached(qApp->applicationFilePath(), QStringList());
 		return 0;
 	}

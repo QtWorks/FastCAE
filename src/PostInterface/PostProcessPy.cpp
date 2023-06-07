@@ -17,7 +17,6 @@
 #include "PostRenderData/StreamLineRenderDataAlg.h"
 #include "PostRenderData/CalculateRenderDataAlg.h"
 #include "PostRenderData/ReflectionRenderDataAlg.h"
-#include "MainWindow/MainWindow.h"
 
 namespace Post
 {
@@ -57,16 +56,19 @@ namespace Post
 	{
 		RenderDataObject *dataObj = nullptr;
 		if (FileDirectoryDialog::isGourpFiles(file))
-			dataObj = new RenderDataImportUnSteady(file);
+        {
+            dataObj = new RenderDataImportUnSteady(file);
+        }
 		else
-			dataObj = new RenderDataImportSteady(file);
-
+        {
+            dataObj = new RenderDataImportSteady(file);
+        }
 		dataObj->update();
 
 		auto dataset = dataObj->getOutputData();
 
 		RenderDataManager::getInstance()->appendRenderObjectList(dataObj);
-		// RenderDirector::getInstance()->renderDataObjectToWindow(dataObj, wID);
+        // RenderDirector::getInstance()->renderDataObjectToWindow(dataObj, wID);
 		emit _director->signal_renderDataObject(dataObj, wID);
 		_tree->updatePostTree();
 		// emit _mainWindow->updatePostTreeSig();

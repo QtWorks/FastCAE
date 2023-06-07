@@ -328,7 +328,7 @@ namespace GUI {
 		connect(this, SIGNAL(updatePreMeshActorSig()), this, SLOT(updatePreMeshActor()));
 		connect(this, SIGNAL(updatePreGeometryActorSig()), this, SLOT(updatePreGeometryActor()));
 
-		connect(this, SIGNAL(openPlot()), _signalHandler, SLOT(openPlotFile()));
+        connect(this, SIGNAL(openPlot()), _signalHandler, SLOT(openPlotFile()));
 	}
 
 	void MainWindow::registerMoudel()

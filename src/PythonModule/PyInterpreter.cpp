@@ -8,14 +8,13 @@
 #include <string>
 #include <QReadWriteLock>
 #include "Common/Types.h"
+#include "Common/DebugLogger.h"
 
-namespace Py
-{
+namespace Py {
 
-	bool PyInterpreter::init(PythonAgent *agent)
+	bool PyInterpreter::init(PythonAgent* agent)
 	{
-		if (!Py_IsInitialized())
-		{
+		if(!Py_IsInitialized()) {
 			return false;
 		}
 		_agent = agent;
@@ -23,19 +22,18 @@ namespace Py
 		this->execCode("import sys", false);
 		this->execCode("import os", false);
 		QString path = QDir::cleanPath(qApp->applicationDirPath());
-		QString qs = QString("sys.path.append(\"%1\")").arg(path);
+		QString qs	 = QString("sys.path.append(\"%1\")").arg(path);
 		this->execCode(qs, false);
 
-		QDir dir(path);
+		QDir		dir(path);
 		QStringList suffix;
 		suffix << "*.py";
 		dir.setNameFilters(suffix);
 		QList<QFileInfo> files = dir.entryInfoList(suffix);
-		for (int i = 0; i < files.size(); ++i)
-		{
+		for(int i = 0; i < files.size(); ++i) {
 			QFileInfo fileinfo = files.at(i);
-			QString name = fileinfo.baseName();
-			QString command = QString("import %1").arg(name);
+			QString	  name	   = fileinfo.baseName();
+			QString	  command  = QString("import %1").arg(name);
 			this->execCode(command, false);
 		}
 
@@ -47,18 +45,18 @@ namespace Py
 		QReadWriteLock lock;
 		lock.lockForRead();
 		std::string s = code.toStdString();
-		const char *c = s.c_str();
-		qDebug() << "exec: " << code;
+		const char* c = s.c_str();
+
+		DebugInfo("Exec python script: %s\n", code.toStdString().c_str());
 
 		int ok = PyRun_SimpleStringFlags(c, NULL);
 
-		if (ok == -1)
-		{
+		if(ok == -1) {
 			QString error = QString(tr("Exception occurred at: \"%1\"")).arg(code);
 			_agent->printInfo(Common::Message::Warning, error);
 		}
 
-		if (save)
+		if(save)
 			_codelist.append(code);
 		lock.unlock();
 		return ok;
@@ -67,10 +65,10 @@ namespace Py
 	void PyInterpreter::execFile(QString file)
 	{
 		QByteArray la = file.toLocal8Bit();
-		char *c = la.data();
-		FILE *fp = nullptr;
-		fp = fopen(c, "r");
-		if (fp != nullptr)
+		char*	   c  = la.data();
+		FILE*	   fp = nullptr;
+		fp			  = fopen(c, "r");
+		if(fp != nullptr)
 			PyRun_SimpleFile(fp, c);
 	}
 
@@ -82,7 +80,7 @@ namespace Py
 	QString PyInterpreter::getCodeAt(int i)
 	{
 		QString c;
-		if (i >= 0 && i < _codelist.size())
+		if(i >= 0 && i < _codelist.size())
 			c = _codelist.at(i);
 		return c;
 	}
@@ -96,4 +94,4 @@ namespace Py
 	{
 		return _codelist;
 	}
-}
+} // namespace Py

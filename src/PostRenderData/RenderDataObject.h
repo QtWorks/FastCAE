@@ -120,9 +120,10 @@ namespace Post {
 		 * @brief 获取变量类型
 		 * @param  vaLocation 变量所在位置 1-pointData  2-cellData
 		 * @param  vaName  变量名称
-		 * @return int 变量类型 1-标量 2-矢量  3-张量  0-错误值
+		 * @return QString 变量类型:scalar\vector\tensor\Unknown
+		 * @note 在vtk中通过分量数量判断数据类型并不是十分准确
 		 */
-		int variableType(int vaLocation, QString vaName);
+		QString variableType(int vaLocation, QString vaName);
 		/**
 		 * @brief 获取变量成员数量
 		 * @param  vaLocation 变量所在位置 1-pointData  2-cellData

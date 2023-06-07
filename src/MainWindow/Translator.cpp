@@ -5,7 +5,7 @@
 #include <QDebug>
 #include <QStringList>
 #include <QTranslator>
-
+#include "Common/DebugLogger.h"
 namespace GUI {
 	const static QStringList Lang_List = {
 		":/translations/MainWindow_zh_CN",		":/translations/MainWidgets_zh_CN",
@@ -34,8 +34,11 @@ namespace GUI {
 			_app->removeTranslator(tranlator);
 			const QString lang = Lang_List.at(i);
 			bool		  ok   = tranlator->load(lang);
-			qDebug() << lang;
-			assert(ok);
+			if(ok) {
+				DebugInfo("Success to load lang file: %s\n", lang.toStdString().c_str());
+			} else {
+				DebugError("Failed to load lang file: %s\n", lang.toStdString().c_str());
+			}
 			_app->installTranslator(tranlator);
 		}
 	}

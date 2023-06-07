@@ -1248,7 +1248,7 @@ namespace GUI {
 
 		FileDirectoryDialog dlg;
 		QStringList			filterTypes = { "VTK(*.vtk)", "CGNS(*.cgns)", "Plot3D(*.x)",
-											"Tecplot(*.szplt)" };
+                                            "Tecplot(*.szplt)","VTU(*.vtu)","PVTU(*.pvtu)" };
 		dlg.iniFileFilterType(filterTypes);
 		if(dlg.exec() != QDialog::Accepted)
 			return;

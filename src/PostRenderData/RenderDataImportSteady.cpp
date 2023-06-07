@@ -18,6 +18,8 @@
 #include <vtkDataSetWriter.h>
 #include <QFile>
 #include <QString>
+#include <vtkXMLUnstructuredGridReader.h>
+#include <vtkXMLPUnstructuredGridReader.h>
 
 namespace Post
 {
@@ -97,6 +99,26 @@ namespace Post
 				mapper->SetInputConnection(_vtkAlg->GetOutputPort(i + 1));
 			}
 		}
+        else if (_Suffix == "vtu")
+        {
+            CreateVTKSmartPtr(vtkXMLUnstructuredGridReader, _vtkAlg) auto r = vtkXMLUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(_FileName, c);
+            r->SetFileName(c);
+            r->Update();
+            _blockNumber = 1;
+            auto mapper = createMapper(true);
+            mapper->SetInputConnection(_vtkAlg->GetOutputPort(0));
+        }
+        else if (_Suffix == "pvtu")
+        {
+            CreateVTKSmartPtr(vtkXMLPUnstructuredGridReader, _vtkAlg) auto r = vtkXMLPUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(_FileName, c);
+            r->SetFileName(c);
+            r->Update();
+            _blockNumber = 1;
+            auto mapper = createMapper(true);
+            mapper->SetInputConnection(_vtkAlg->GetOutputPort(0));
+        }
 	}
 
 	RenderDataImportSteady *RenderDataImportSteady::SafeDownCast(RenderDataObject *obj)

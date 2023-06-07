@@ -27,6 +27,8 @@ add_library(PythonModule
 #-----------------------------------------------------------------------------
 target_compile_definitions(PythonModule PRIVATE "PYTHONMODULE_API")
 
+list(APPEND _depend_library Common)
+
 list(APPEND _runtimes_libraries
 	Qt5::Widgets FASTCAE::PYTHON
 )
@@ -39,7 +41,14 @@ endif()
 #-----------------------------------------------------------------------------
 # 链接依赖库
 #-----------------------------------------------------------------------------
-target_link_libraries(PythonModule ${_runtimes_libraries})
+target_link_libraries(PythonModule
+	${_runtimes_libraries}
+	${_depend_library})
+
+#-----------------------------------------------------------------------------
+# 添加依赖关系
+#-----------------------------------------------------------------------------
+add_dependencies(PythonModule ${_depend_library})
 
 #-----------------------------------------------------------------------------
 # 添加运行时依赖关系

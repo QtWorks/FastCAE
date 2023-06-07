@@ -1,17 +1,16 @@
 ﻿#include <Python.h>
-#include "PyAgent.h"
-#include <QString>
 #include <QCoreApplication>
 #include <QDebug>
 #include <QDir>
+#include <QFile>
+#include <QString>
+#include <QTextStream>
+#include <wchar.h>
+#include "PyAgent.h"
 #include "MainWindow/MainWindow.h"
 #include "PyInterpreter.h"
 #include "RecordScript.h"
 #include "ScriptReader.h"
-#include <QFile>
-#include <QDebug>
-#include <QTextStream>
-#include <wchar.h>
 
 #ifdef Q_OS_WIN32
 #include <atlconv.h>
@@ -19,13 +18,12 @@
 
 #include <locale.h>
 
-namespace Py
-{
-	PythonAgent *PythonAgent::_instance = nullptr;
+namespace Py {
+	PythonAgent* PythonAgent::_instance = nullptr;
 
-	PythonAgent *PythonAgent::getInstance()
+	PythonAgent* PythonAgent::getInstance()
 	{
-		if (_instance == nullptr)
+		if(_instance == nullptr)
 			_instance = new PythonAgent;
 
 		return _instance;
@@ -33,13 +31,14 @@ namespace Py
 
 	void PythonAgent::connectSignals()
 	{
-		connect(this, SIGNAL(printInfo(Common::Message, QString)), _mainWindow, SIGNAL(printMessageSig(Common::Message, QString)));
+		connect(this, SIGNAL(printInfo(Common::Message, QString)), _mainWindow,
+				SIGNAL(printMessageSig(Common::Message, QString)));
 		connect(this, SIGNAL(closeMainWindow()), _mainWindow, SIGNAL(closeMainWindow()));
 	}
 
 	void PythonAgent::appCodeList(QString code)
 	{
-		if (!_append)
+		if(!_append)
 			return;
 		emit printInfo(Common::Message::Python, code);
 		_interpreter->codeListAppend(code);
@@ -50,40 +49,13 @@ namespace Py
 		_interpreter = new PyInterpreter;
 	}
 
-	void PythonAgent::initialize(GUI::MainWindow *m)
+	void PythonAgent::initialize(GUI::MainWindow* m)
 	{
 		_mainWindow = m;
 		connectSignals();
-		/*
-				QString path = qApp->applicationDirPath() + "/../python37";
-				path = QDir::cleanPath(path);
-				char *ch;
-				QByteArray ba = path.toLocal8Bit();
-				ch = ba.data();
-				wchar_t *wc;
-
-		#ifdef Q_OS_WIN32
-				USES_CONVERSION;
-				wc = A2W(ch);
-		#endif
-
-		#ifdef Q_OS_LINUX
-				setlocale(LC_CTYPE, "zh_CN.utf8");
-				int w_size = mbstowcs(NULL, ba, 0) + 1;
-				wc = new wchar_t[w_size];
-				mbstowcs(wc, ba, strlen(ba) + 1);
-		#endif
-
-				QDir d(path);
-				if (d.exists())
-				{
-		#ifdef Q_OS_WIN32
-					Py_SetPythonHome(wc);
-		#endif
-				}*/
 		Py_SetProgramName(L"FastCAE");
 		Py_Initialize();
-		if (!_interpreter->init(this))
+		if(!_interpreter->init(this))
 			emit printInfo(Common::Message::Error, tr("Python Initialize failed!"));
 		else
 			emit printInfo(Common::Message::Normal, tr("Python Initialized"));
@@ -93,15 +65,13 @@ namespace Py
 
 	void PythonAgent::finalize()
 	{
-		if (_reader != nullptr)
-		{
-			if (_reader->isRunning())
-			{
+		if(_reader != nullptr) {
+			if(_reader->isRunning()) {
 				_reader->stop();
 				_reader->quit();
 				_reader->wait();
 			}
-			while (_reader->isRunning())
+			while(_reader->isRunning())
 				;
 			delete _reader;
 			_reader = nullptr;
@@ -112,23 +82,20 @@ namespace Py
 		_recordScript->wait();
 		delete _recordScript;
 
-		if (_interpreter != nullptr)
+		if(_interpreter != nullptr)
 			delete _interpreter;
 
-		if (Py_IsInitialized())
+		if(Py_IsInitialized())
 			Py_Finalize();
 	}
 
 	void PythonAgent::submit(QString code, bool s)
 	{
-		//		this->lock();
-		qDebug() << "submit: " << code;
 		emit printInfo(Common::Message::Python, code);
 		//		lock();
-		int ok = _interpreter->execCode(code, s);
-		if (ok == -1)
-		{
-			if (_reader != nullptr)
+		int	 ok = _interpreter->execCode(code, s);
+		if(ok == -1) {
+			if(_reader != nullptr)
 				_reader->restart();
 		}
 	}
@@ -136,8 +103,7 @@ namespace Py
 	void PythonAgent::submit(QStringList codes, bool save /*= true*/)
 	{
 		const int n = codes.size();
-		for (int i = 0; i < n; ++i)
-		{
+		for(int i = 0; i < n; ++i) {
 			this->submit(codes.at(i), save);
 		}
 	}
@@ -145,15 +111,13 @@ namespace Py
 	void PythonAgent::saveScript(QString fileName)
 	{
 		QFile file(fileName);
-		if (!file.open(QIODevice::Text | QIODevice::WriteOnly))
-		{
+		if(!file.open(QIODevice::Text | QIODevice::WriteOnly)) {
 			emit printInfo(Common::Message::Error, tr("Script open failed"));
 			return;
 		}
 		QTextStream stream(&file);
-		const int n = _interpreter->getCodeCount();
-		for (int i = 0; i < n; ++i)
-		{
+		const int	n = _interpreter->getCodeCount();
+		for(int i = 0; i < n; ++i) {
 			QString s = _interpreter->getCodeAt(i);
 			stream << s << endl;
 		}
@@ -163,7 +127,7 @@ namespace Py
 
 	bool PythonAgent::execScript(QString fileName)
 	{
-		if (_reader != nullptr)
+		if(_reader != nullptr)
 			return false;
 		_reader = new ScriptReader(fileName, this);
 		_recordScript->pause();
@@ -174,23 +138,23 @@ namespace Py
 
 	void PythonAgent::readerFinished()
 	{
-		if (_reader != nullptr)
+		if(_reader != nullptr)
 			delete _reader;
 		_reader = nullptr;
 		_recordScript->reStart();
-		if (_noGUI)
+		if(_noGUI)
 			emit closeMainWindow();
 	}
 
 	void PythonAgent::lock()
 	{
-		if (_reader != nullptr)
+		if(_reader != nullptr)
 			_reader->pause();
 	}
 
 	void PythonAgent::unLock()
 	{
-		if (_reader != nullptr)
+		if(_reader != nullptr)
 			_reader->restart();
 	}
 
@@ -201,7 +165,7 @@ namespace Py
 
 	QStringList PythonAgent::getcodelist()
 	{
-		if (_interpreter != nullptr)
+		if(_interpreter != nullptr)
 			return _interpreter->getCode();
 		return QStringList();
 	}
@@ -229,4 +193,4 @@ namespace Py
 	{
 		_interpreter->execCode(code, false);
 	}
-}
+} // namespace Py

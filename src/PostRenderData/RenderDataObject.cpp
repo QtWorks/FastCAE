@@ -201,9 +201,9 @@ QStringList RenderDataObject::getBlockCellDataArray(int index)
     return nameList;
 }
 
-int RenderDataObject::variableType(int vaLocation, QString vaName)
+QString RenderDataObject::variableType(int vaLocation, QString vaName)
 {
-    int type = 0;
+    QString type = "Unknown";
     vtkDataSet* data = getOutputData();
     if (data == nullptr) return 0;
     QString2Char(vaName, cName)
@@ -215,11 +215,11 @@ int RenderDataObject::variableType(int vaLocation, QString vaName)
     if (dataArray == nullptr) return 0;
     const int cNum = dataArray->GetNumberOfComponents();
     if (cNum == 1)
-        type = 1;
+        type = "scalar";
     else if (cNum == 3)
-        type = 2;
-    else if (cNum >= 4)
-        type = 3;
+        type = "vector";
+    else if (cNum == 9)
+        type = "tensor";
     return type;
 }
 

@@ -31,7 +31,7 @@ set_property(DIRECTORY ${CMAKE_SOURCE_DIR}
 		VS_STARTUP_PROJECT FastCAE
 )
 
-list(APPEND _depend_library PythonModule SARibbonBar Settings DataProperty MeshData Material Geometry ConfigOptions SelfDefObject ModelData ModuleBase PluginManager GmshModule PostInterface PostWidgets ProjectTree GeometryCommand GeometryWidgets IO SolverControl MainWidgets UserGuidence MainWindow)
+list(APPEND _depend_library Common PythonModule SARibbonBar Settings DataProperty MeshData Material Geometry ConfigOptions SelfDefObject ModelData ModuleBase PluginManager GmshModule PostInterface PostWidgets ProjectTree GeometryCommand GeometryWidgets IO SolverControl MainWidgets UserGuidence MainWindow)
 if(_WIN_)
 	#list(APPEND _depend_library XGenerateReport License)
 endif()

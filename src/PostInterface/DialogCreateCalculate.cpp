@@ -1,17 +1,19 @@
-#include "DialogCreateCalculate.h"
-#include "ui_DialogCreateCalculate.h"
-#include "PostTreeWidget.h"
-#include "RenderDirector.h"
-#include "PostRenderData/RenderDataObject.h"
+﻿#include "DialogCreateCalculate.h"
+
 #include "PostRenderData/CalculateRenderDataAlg.h"
+#include "PostRenderData/RenderDataObject.h"
+#include "PostTreeWidget.h"
 #include "PythonModule/PyAgent.h"
+#include "RenderDirector.h"
+#include "ui_DialogCreateCalculate.h"
+
 #include <QMenu>
 #include <QMessageBox>
 
-namespace Post
-{
-	CreateCalculateDialog::CreateCalculateDialog(PostTreeWidget *tree, QWidget *parent) : PostFunctionDialogBase(tree, parent),
-																						  _ui(new Ui::CreateCalculateDialog)
+namespace Post {
+	CreateCalculateDialog::CreateCalculateDialog(PostTreeWidget* tree, QWidget* parent)
+		: PostFunctionDialogBase(tree, parent)
+		, _ui(new Ui::CreateCalculateDialog)
 	{
 		_ui->setupUi(this);
 		init();
@@ -37,14 +39,13 @@ namespace Post
 
 	void CreateCalculateDialog::accept()
 	{
-		if (_parentObject == nullptr)
-		{
+		if(_parentObject == nullptr) {
 			QMessageBox::warning(this, tr("Warning!"), tr("No selected data!"));
 			return;
 		}
 
-		QString name = _ui->nameLineEdit->text();
-		QString exp = _ui->expressionLineEdit->text().trimmed();
+		QString		name = _ui->nameLineEdit->text();
+		QString		exp	 = _ui->expressionLineEdit->text().trimmed();
 
 		QStringList codes{};
 
@@ -54,9 +55,9 @@ namespace Post
 		codes += QString("calculate.setUsePointData(%1)").arg(_isPoint);
 		codes += QString("calculate.setFunction('%1')").arg(exp);
 
-		for (auto v : _scalarList)
+		for(auto v : _scalarList)
 			codes += QString("calculate.appendScalar('%1')").arg(v);
-		for (auto v : _vectorList)
+		for(auto v : _vectorList)
 			codes += QString("calculate.appendVector('%1')").arg(v);
 
 		codes += this->getSeletedDataCode("calculate");
@@ -83,7 +84,8 @@ namespace Post
 		// 		alg->update();
 		//
 		// 		_parentObject->appendSubObjects(alg);
-		// 		RenderDirector::getInstance()->renderDataObjectToWindow(alg, _parentObject->getRenderWinID());
+		// 		RenderDirector::getInstance()->renderDataObjectToWindow(alg,
+		// _parentObject->getRenderWinID());
 		//		_tree->updatePostTree();
 		QDialog::accept();
 		this->close();
@@ -97,46 +99,38 @@ namespace Post
 
 	void CreateCalculateDialog::updateDisplayInterface()
 	{
-		if (_parentObject == nullptr)
+		if(_parentObject == nullptr)
 			return;
-		QAction *action = nullptr;
+		QAction* action = nullptr;
 
 		_scalarMenu->clear();
 		_vectorMenu->clear();
 
-		auto createMenu = [=, &action](QStringList arrayList)
-		{
-			for (auto array : arrayList)
-			{
-				int type = _parentObject->variableType(1, array);
-				if (type == 1)
-				{
+		auto createMenu = [=, &action](QStringList arrayList) {
+			for(auto array : arrayList) {
+				auto type = _parentObject->variableType(1, array);
+				if(type == "scalar") {
 					action = _scalarMenu->addAction(array);
-					connect(action, &QAction::triggered, [=]
-							{
-						setExpression(array); 
-						if (!_scalarList.contains(array))
-							_scalarList.append(array); });
-				}
-				else if (type == 2)
-				{
-					action = _vectorMenu->addAction(array);
-					connect(action, &QAction::triggered, [=]
-							{
+					connect(action, &QAction::triggered, [=] {
 						setExpression(array);
-						if (!_vectorList.contains(array))
-							_vectorList.append(array); });
+						if(!_scalarList.contains(array))
+							_scalarList.append(array);
+					});
+				} else if(type == "vector") {
+					action = _vectorMenu->addAction(array);
+					connect(action, &QAction::triggered, [=] {
+						setExpression(array);
+						if(!_vectorList.contains(array))
+							_vectorList.append(array);
+					});
 				}
 			}
 		};
 
-		if (_isPoint)
-		{
+		if(_isPoint) {
 			QStringList pArray = _parentObject->getPointDataArray();
 			createMenu(pArray);
-		}
-		else
-		{
+		} else {
 			QStringList cArray = _parentObject->getCellDataArray();
 			createMenu(cArray);
 		}
@@ -343,17 +337,17 @@ namespace Post
 	{
 		QString exp = _operationList.join("");
 		text.remove(exp);
-		if (text.isEmpty())
+		if(text.isEmpty())
 			return;
 		_operationList.append(text);
 	}
 
 	void CreateCalculateDialog::on_typeComboBox_currentIndexChanged(int index)
 	{
-		if (index == 0)
+		if(index == 0)
 			_isPoint = true;
 		else
 			_isPoint = false;
 	}
 
-}
+} // namespace Post

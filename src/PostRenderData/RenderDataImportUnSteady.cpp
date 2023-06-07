@@ -5,6 +5,8 @@
 #include "PostAlgorithm/CGNSReaderAlgorithm.h"
 #include "PostAlgorithm/Plot3DReaderAlgorithm.h"
 #include "Macros.hxx"
+#include <vtkXMLUnstructuredGridReader.h>
+#include <vtkXMLPUnstructuredGridReader.h>
 
 namespace Post {
 	QStringList getSelectGroupFiles(const QString path)
@@ -124,8 +126,27 @@ namespace Post {
 				auto mapper = createMapper(true);
 				mapper->SetInputConnection(_vtkAlg->GetOutputPort(i + 1));
 			}
-
-		}
+        }
+        else if (Suffix == "vtu")
+        {
+            CreateVTKSmartPtr(vtkXMLUnstructuredGridReader, _vtkAlg)
+                auto r = vtkXMLUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(fileName, c)
+                r->SetFileName(c);
+            _blockNumber = 1;
+            auto mapper = createMapper(true);
+            mapper->SetInputConnection(_vtkAlg->GetOutputPort(0));
+        }
+        else if (Suffix == "pvtu")
+        {
+            CreateVTKSmartPtr(vtkXMLPUnstructuredGridReader, _vtkAlg)
+                auto r = vtkXMLPUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(fileName, c)
+                r->SetFileName(c);
+            _blockNumber = 1;
+            auto mapper = createMapper(true);
+            mapper->SetInputConnection(_vtkAlg->GetOutputPort(0));
+        }
 	}
 
 	void RenderDataImportUnSteady::ReadFile()
@@ -148,7 +169,19 @@ namespace Post {
 			auto r = Plot3DReaderAlgorithm::SafeDownCast(_vtkAlg);
 			QString2Char(f, c);
 			r->SetFileName(c);
-		}
+        }
+        else if (this->getSuffix() == "vtu")
+        {
+            auto r = vtkXMLUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(f, c);
+            r->SetFileName(c);
+        }
+        else if (this->getSuffix() == "pvtu")
+        {
+            auto r = vtkXMLPUnstructuredGridReader::SafeDownCast(_vtkAlg);
+            QString2Char(f, c);
+            r->SetFileName(c);
+        }
 	}
 
 	RenderDataImportUnSteady::~RenderDataImportUnSteady()

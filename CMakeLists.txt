@@ -66,6 +66,7 @@ option(FASTCAE_ENABLE_OPENMP "使用OpenMP" OFF)
 option(FASTCAE_ENABLE_MPI "使用MPI" OFF)
 option(FASTCAE_DOXYGEN_DOC "生成Doxygen文档" OFF)
 option(FASTCAE_INSTALLATION_PACKAGE "生成${PROJECT_NAME}安装包" ON)
+option(FASTCAE_DEBUG_INFO "输出调试信息" ON)
 
 #-----------------------------------------------------------------------------
 # 指定编译选项
@@ -107,6 +108,13 @@ if(FASTCAE_ENABLE_MPI)
 	if(MPI_CXX_FOUND)
 		add_definitions(-DFASTCAE_HAS_MPI)
 	endif()
+endif()
+
+#-----------------------------------------------------------------------------
+# 输出调试信息
+#-----------------------------------------------------------------------------
+if(FASTCAE_DEBUG_INFO)
+	add_definitions(-DOUTPUT_DEBUG_INFO)
 endif()
 
 #-----------------------------------------------------------------------------

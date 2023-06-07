@@ -15,7 +15,7 @@ namespace Post {
 	{
 		Q_OBJECT
 
-		Singleton(RenderDirector)
+        Singleton(RenderDirector)
 
 	signals:
 		void signal_renderDataObject(RenderDataObject* obj,int wID);
